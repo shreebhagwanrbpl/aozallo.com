@@ -99,7 +99,7 @@ export default function HeroSection({
           doc(
             db,
             "websites",
-            "centralbiomedicals",
+            "aozallocom",
             "pages",
             "home"
           )
@@ -127,7 +127,7 @@ export default function HeroSection({
           doc(
             db,
             "websites",
-            "centralbiomedicals",
+            "aozallocom",
             "pages",
             "services"
           )
@@ -143,7 +143,7 @@ export default function HeroSection({
           doc(
             db,
             "websites",
-            "centralbiomedicals",
+            "aozallocom",
             "pages",
             "products"
           )

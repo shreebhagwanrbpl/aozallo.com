@@ -45,7 +45,7 @@ export default function Footer() {
           doc(
             db,
             "websites",
-            "centralbiomedicals",
+            "aozallocom",
             "pages",
             "contact"
           )
@@ -76,7 +76,7 @@ export default function Footer() {
           doc(
             db,
             "websites",
-            "centralbiomedicals",
+            "aozallocom",
             "districts",
             district
           )
@@ -164,9 +164,9 @@ export default function Footer() {
           <div>
 
             <h2 className="text-2xl font-bold text-green-600">
-              Central
+              Raj
               <span className="text-slate-900">
-                {" "}Biomedicals
+                {" "}Biosis
               </span>
             </h2>
 
@@ -326,7 +326,7 @@ export default function Footer() {
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-green-100 pt-8 text-sm text-slate-500 md:flex-row">
 
           <p>
-            © 2026 Central Biomedicals. All rights reserved.
+            © 2026 Raj Biosis. All rights reserved.
           </p>
 
           <p>
