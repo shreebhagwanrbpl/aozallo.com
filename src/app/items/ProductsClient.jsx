@@ -317,11 +317,26 @@ export default function ProductsClient({ initialProducts = [], district = null, 
 
   return (
     <Profiler id="ProductsLayout" onRender={onRenderCallback}>
-      {/* Banner */}
+      {/* Banner with Integrated Search */}
       <PageBanner
-        title={city ? `Our Products in ${city}` : "Our Products"}
-        subtitle="Explore advanced biomedical and diagnostic equipment designed for modern healthcare excellence."
-      />
+        title={city ? `Premium Biomedical Equipment ${city}` : "Premium Biomedical Equipment"}
+        subtitle="Discover high-quality diagnostic and biomedical technologies tailored for laboratories, healthcare institutions, and modern diagnostics."
+      >
+        <div className="max-w-2xl mx-auto relative px-4 lg:px-0">
+          <Search
+            size={22}
+            className="absolute left-8 top-1/2 -translate-y-1/2 text-emerald-600"
+          />
+          <input
+            type="text"
+            placeholder="Search products by title, brand, model, or category..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            className="w-full h-16 pl-14 pr-6 text-sm font-semibold rounded-2xl border-2 border-emerald-200 bg-white text-slate-900 shadow-xl focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition"
+          />
+        </div>
+      </PageBanner>
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -353,75 +368,8 @@ export default function ProductsClient({ initialProducts = [], district = null, 
         }}
       />
 
-      {/* HERO */}
-
-      <section className="relative pt-32 pb-24 overflow-hidden">
-
-        <div className="absolute top-0 left-0 w-96 h-96 bg-violet-100 blur-3xl rounded-full"></div>
-
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-green-100 blur-3xl rounded-full"></div>
-
-        <div className="max-w-7xl mx-auto px-5 relative z-10">
-
-          <div className="text-center max-w-5xl mx-auto">
-
-            <span className="inline-flex items-center rounded-full bg-violet-100 px-5 py-2 text-sm font-semibold text-violet-700">
-
-              Raj Biosis
-
-            </span>
-
-            <motion.h1
-              initial={{ opacity: 0, y: 35 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: .7 }}
-              className="mt-8 text-5xl lg:text-7xl font-bold leading-tight"
-            >
-
-              {city
-                ? `Buy Medical Laboratory Equipment in ${city}`
-                : "Medical Laboratory Equipment"}
-
-            </motion.h1>
-
-            <p className="mt-8 text-xl text-slate-600 leading-9">
-
-              Premium laboratory instruments,
-              diagnostic systems and hospital equipment.
-
-            </p>
-
-          </div>
-
-        </div>
-
-      </section>
       {/* Products */}
-      <section className="section-padding bg-white">
-        <div className="container-custom">
-          <SectionTitle
-            badge="Featured Products"
-            title="Premium Biomedical Equipment"
-            description="Discover high-quality diagnostic and biomedical technologies tailored for laboratories, healthcare institutions, and modern diagnostics."
-            center
-          />
-        </div>
-
-        {/* Search */}
-        <div className="max-w-2xl mx-auto mt-6 lg:mt-10 px-4 lg:px-0 relative">
-          <Search
-            size={22}
-            className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"
-          />
-
-          <input
-            type="text"
-            placeholder="Search products..."
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            className="w-full h-16 pl-14 pr-5 rounded-2xl border border-slate-200 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
-        </div>
+      <section className="py-12 lg:py-16 bg-white">
 
         {/* Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)] gap-6 lg:gap-10 mt-8 lg:mt-16 items-start px-4 lg:px-0">

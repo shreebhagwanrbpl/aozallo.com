@@ -1,12 +1,16 @@
 "use client";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import SectionTitle from "@/components/SectionTitle";
 import ServiceCard from "@/components/ServiceCard";
-import { motion } from "framer-motion";
+import HeroCarousel from "@/components/HeroCarousel";
+import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, addDoc, collection } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import toast from "react-hot-toast";
+import { generateFAQSchema } from "@/lib/seo";
 import {
   Microscope,
   FlaskConical,
@@ -18,47 +22,202 @@ import {
   PhoneCall,
   Wrench,
   Activity,
-} from "lucide-react";
-
-import Image from "next/image";
-import {
-
-
-
+  Star,
+  Sparkles,
+  Award,
   Truck,
+  Globe,
+  ChevronDown,
+  FileText,
+  BadgeCheck,
+  Zap,
 } from "lucide-react";
 
 const stats = [
   {
     number: "5000+",
-    title: "Happy Clients",
+    title: "Installed Units",
+    subtitle: "In Hospitals & Path Labs",
     icon: Building2,
   },
   {
     number: "3500+",
-    title: "Products",
+    title: "Catalog Products",
+    subtitle: "Devices, Reagents & Spares",
     icon: Microscope,
   },
   {
     number: "10+",
-    title: "Years Experience",
+    title: "Years Trust",
+    subtitle: "Biomedical Service Excellence",
     icon: ShieldCheck,
   },
   {
     number: "24/7",
-    title: "Support",
+    title: "On-Site Support",
+    subtitle: "Pan-India AMC Maintenance",
     icon: Truck,
   },
 ];
 
-export default function HeroSection({
-}) {
+const categoryShowcase = [
+  {
+    id: "icu",
+    title: "ICU & Critical Care",
+    desc: "Multi-parameter patient monitors, ventilators, defibrillators, and syringe infusion pumps.",
+    badge: "Hospital Grade",
+    icon: Activity,
+    color: "from-emerald-500 to-teal-700",
+    link: "/items",
+  },
+  {
+    id: "pathology",
+    title: "Pathology & Biochemistry",
+    desc: "Fully automated biochemistry analyzers, 3-part & 5-part hematology CBC machines, ELISA readers.",
+    badge: "High Throughput",
+    icon: FlaskConical,
+    color: "from-green-600 to-emerald-800",
+    link: "/items",
+  },
+  {
+    id: "imaging",
+    title: "Ultrasound & Imaging",
+    desc: "Color Doppler ultrasound scanners, high-frequency probes, digital X-Ray diagnostic systems.",
+    badge: "Advanced Diagnostic",
+    icon: Microscope,
+    color: "from-teal-600 to-cyan-700",
+    link: "/items",
+  },
+  {
+    id: "reagents",
+    title: "Reagents & Rapid Kits",
+    desc: "Electrolyte reagents, clinical biochemistry solutions, hematology diluents, and rapid diagnostic test kits.",
+    badge: "Certified Quality",
+    icon: Stethoscope,
+    color: "from-emerald-600 to-green-700",
+    link: "/items",
+  },
+];
+
+const homeFaqs = [
+  {
+    question: "What types of biomedical and diagnostic equipment does Raj Biosis supply?",
+    answer:
+      "Raj Biosis supplies a comprehensive range of biomedical and clinical diagnostic equipment including Hematology Analyzers (CBC machines), Biochemistry Analyzers, ICU Multi-Para Monitors, Ultrasound Diagnostic Systems, Electrolyte Analyzers, ELISA Readers, and Pathology Laboratory Reagents.",
+  },
+  {
+    question: "Do you provide installation, calibration, and training for medical devices?",
+    answer:
+      "Yes! Every medical equipment purchase includes complete pan-India on-site installation, operational calibration by certified biomedical engineers, and thorough hands-on staff training.",
+  },
+  {
+    question: "What after-sales support and AMC maintenance options are available?",
+    answer:
+      "We offer Annual Maintenance Contracts (AMC) and Comprehensive Maintenance Contracts (CMC) with 24/7 technical assistance, scheduled preventive maintenance visits, and emergency breakdown repairs across India.",
+  },
+  {
+    question: "Can hospitals and laboratories outside India request export quotations?",
+    answer:
+      "Yes, Raj Biosis caters to international B2B healthcare buyers, government tenders, private hospital chains, and regional medical distributors with export packaging, customs compliance, and international logistics support.",
+  },
+  {
+    question: "How quickly can I receive a quotation for medical equipment?",
+    answer:
+      "Upon submitting your requirement via our online B2B quote form or calling our sales hotline, our medical product specialists issue a detailed itemized quotation within 2 to 4 business hours.",
+  },
+];
+
+const defaultHomeProducts = [
+  {
+    title: "HD Consortium Automatic Abbott Blood Analyzer",
+    slug: "hdc-lyte-plus-blood-analyzer",
+    brand: "HD Consortium",
+    category: "Pathology Analyzer",
+    usage: "Hospitals & Diagnostics",
+    description: "Fully automatic blood gas and electrolyte analyzer designed for rapid, high-precision critical care analysis.",
+    image: "/images/biomedical-hero-1.png",
+  },
+  {
+    title: "Abbott i-STAT 1 Portable Clinical Analyzer",
+    slug: "abbott-i-stat-1-portable-analyzer",
+    brand: "Abbott",
+    category: "Point of Care",
+    usage: "ICU & Emergency",
+    description: "Handheld point-of-care blood analyzer providing lab-accurate diagnostic results in 2 minutes.",
+    image: "/images/biomedical-hero-2.png",
+  },
+  {
+    title: "Multi-Para Patient ICU Monitor 12.1 Inch",
+    slug: "multi-para-icu-monitor-12-inch",
+    brand: "Raj Biosis",
+    category: "ICU & Critical Care",
+    usage: "Operating Rooms & ICUs",
+    description: "High-resolution color TFT monitor with ECG, SpO2, NIBP, Respiration, and Dual Temperature tracking.",
+    image: "/images/biomedical-hero-1.png",
+  },
+  {
+    title: "Clinical Biochemistry Fully Auto Analyzer",
+    slug: "clinical-biochemistry-analyzer",
+    brand: "Raj Biosis",
+    category: "Biochemistry",
+    usage: "Pathology Laboratories",
+    description: "High throughput automated clinical chemistry platform for liver, kidney, and lipid panel testing.",
+    image: "/images/biomedical-hero-2.png",
+  },
+  {
+    title: "Color Doppler Diagnostic Ultrasound Machine",
+    slug: "color-doppler-ultrasound-system",
+    brand: "Raj Biosis",
+    category: "Ultrasound & Imaging",
+    usage: "Radiology & OB/GYN",
+    description: "High-frequency digital ultrasound system with multi-frequency probes and 3D/4D imaging capabilities.",
+    image: "/images/biomedical-hero-1.png",
+  },
+  {
+    title: "Electrolyte Analyzer Na+ / K+ / Cl- / Ca++",
+    slug: "electrolyte-analyzer-standard",
+    brand: "Raj Biosis",
+    category: "Electrolyte Reader",
+    usage: "Clinical Labs",
+    description: "Advanced ion-selective electrode (ISE) analyzer with maintenance-free electrode modules.",
+    image: "/images/biomedical-hero-2.png",
+  },
+];
+
+const defaultHomeServices = [
+  {
+    title: "Biomedical Installation & Commissioning",
+    desc: "Complete setup, electrical safety audit, and diagnostic calibration by certified engineers across India.",
+    icon: Microscope,
+  },
+  {
+    title: "Annual Maintenance Contracts (AMC & CMC)",
+    desc: "24/7 technical hotline, emergency breakdown response, and scheduled quarterly preventive audits.",
+    icon: ShieldCheck,
+  },
+  {
+    title: "ISO 9001:2015 Diagnostic Equipment Calibration",
+    desc: "NABL-traceable sensor alignment and optical calibration for pathology & hospital instruments.",
+    icon: FlaskConical,
+  },
+];
+
+export default function Home({ city: initialCity }) {
   const [services, setServices] = useState([]);
   const [products, setProducts] = useState([]);
   const pathname = usePathname();
-
-  const pathParts = pathname.split("/").filter(Boolean);
   const [loading, setLoading] = useState(true);
+  const [openFaq, setOpenFaq] = useState(0);
+
+  // Form State
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    requirement: "",
+    company: "",
+  });
+  const [submitting, setSubmitting] = useState(false);
 
   const [heroData, setHeroData] = useState({
     title: "",
@@ -66,45 +225,34 @@ export default function HeroSection({
     button1Text: "",
     button2Text: "",
   });
-  const staticRoutes = [
-    "about",
-    "services",
-    "items",
-    "contact",
-  ];
+
+  const pathParts = pathname.split("/").filter(Boolean);
+  const staticRoutes = ["about", "services", "items", "contact"];
 
   const district =
-    pathParts.length > 0 &&
-      !staticRoutes.includes(pathParts[0])
+    pathParts.length > 0 && !staticRoutes.includes(pathParts[0])
       ? pathParts[0]
       : "";
-  const city = district
+  const city = initialCity
+    ? initialCity
+    : district
     ? district
-      .replace(/-/g, " ")
-      .replace(/\b\w/g, (c) => c.toUpperCase())
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase())
     : "";
+
   const makeLink = (path) => {
     if (!district) return path;
-
-    if (path === "/") {
-      return `/${district}`;
-    }
-
+    if (path === "/") return `/${district}`;
     return `/${district}${path}`;
   };
+
   useEffect(() => {
     const fetchHeroData = async () => {
       try {
         const snap = await getDoc(
-          doc(
-            db,
-            "websites",
-            "aozallocom",
-            "pages",
-            "home"
-          )
+          doc(db, "websites", "aozallocom", "pages", "home")
         );
-
         if (snap.exists()) {
           setHeroData(snap.data());
         }
@@ -114,43 +262,25 @@ export default function HeroSection({
         setLoading(false);
       }
     };
-
     fetchHeroData();
   }, []);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-
         // Services
-
         const serviceSnap = await getDoc(
-          doc(
-            db,
-            "websites",
-            "aozallocom",
-            "pages",
-            "services"
-          )
+          doc(db, "websites", "aozallocom", "pages", "services")
         );
-
         if (serviceSnap.exists()) {
           setServices(serviceSnap.data().services || []);
         }
 
         // Products
-
         const productSnap = await getDoc(
-          doc(
-            db,
-            "websites",
-            "aozallocom",
-            "pages",
-            "products"
-          )
+          doc(db, "websites", "aozallocom", "pages", "products")
         );
-
         if (productSnap.exists()) {
-
           const data = (productSnap.data().products || []).map((item) => ({
             ...item,
             slug:
@@ -161,504 +291,617 @@ export default function HeroSection({
                 .replace(/[^a-z0-9\s-]/g, "")
                 .replace(/\s+/g, "-"),
           }));
-
           setProducts(data);
-
         }
-
       } catch (err) {
         console.error(err);
       }
     };
-
     fetchData();
   }, []);
+
+  const handleQuoteSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.name.trim() || !form.phone.trim()) {
+      return toast.error("Please fill in your Name and Phone Number");
+    }
+
+    try {
+      setSubmitting(true);
+      await addDoc(
+        collection(db, "websitesQueries", "aozallocom", "homeB2BQueries"),
+        {
+          ...form,
+          city: city || "General",
+          createdAt: new Date(),
+        }
+      );
+      toast.success("Thank you! Your quotation request has been submitted.");
+      setForm({ name: "", email: "", phone: "", requirement: "", company: "" });
+    } catch (err) {
+      console.error(err);
+      toast.error("Error submitting quote request. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const icons = [
-    <Microscope size={30} />,
-    <FlaskConical size={30} />,
-    <ShieldCheck size={30} />,
-    <Stethoscope size={30} />,
-    <Wrench size={30} />,
-    <Activity size={30} />,
+    <Microscope size={30} key={1} />,
+    <FlaskConical size={30} key={2} />,
+    <ShieldCheck size={30} key={3} />,
+    <Stethoscope size={30} key={4} />,
+    <Wrench size={30} key={5} />,
+    <Activity size={30} key={6} />,
   ];
+
+  const defaultTitle = "Advanced Biomedical & Diagnostic Medical Equipment";
+  const defaultDesc =
+    "Empowering hospitals, diagnostic centers, and pathology laboratories across India with cutting-edge medical devices, ICU monitors, surgical instruments, and 24/7 AMC technical maintenance support.";
+  const defaultBtn1 = "Explore Products";
+  const defaultBtn2 = "Get Custom Quote";
+
+  const displayTitle =
+    heroData?.title && heroData.title.trim() !== ""
+      ? heroData.title
+      : defaultTitle;
+  const displayDesc =
+    heroData?.description && heroData.description.trim() !== ""
+      ? heroData.description
+      : defaultDesc;
+  const displayBtn1 =
+    heroData?.button1Text && heroData.button1Text.trim() !== ""
+      ? heroData.button1Text
+      : defaultBtn1;
+  const displayBtn2 =
+    heroData?.button2Text && heroData.button2Text.trim() !== ""
+      ? heroData.button2Text
+      : defaultBtn2;
+
+  const displayProducts = products.length > 0 ? products : defaultHomeProducts;
+  const displayServices = services.length > 0 ? services : defaultHomeServices;
+
+  const faqSchemaData = generateFAQSchema(homeFaqs);
+
   return (
     <>
-      <section className="relative overflow-hidden bg-gradient-to-br from-green-50 via-white to-emerald-100">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(faqSchemaData),
+        }}
+      />
 
-        {/* Background */}
-        <div className="absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-green-300/20 blur-[150px]" />
-        <div className="absolute -bottom-40 -left-40 h-[500px] w-[500px] rounded-full bg-emerald-300/20 blur-[150px]" />
+      {/* ============================================================
+          HERO SECTION
+      ============================================================ */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-50/80 via-white to-green-100/60 py-16 sm:py-20 lg:py-24">
+        {/* Ambient Glow Elements */}
+        <div className="absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-emerald-300/20 blur-[140px] pointer-events-none" />
+        <div className="absolute -bottom-40 -left-40 h-[500px] w-[500px] rounded-full bg-teal-300/20 blur-[140px] pointer-events-none" />
 
-        <div className="container-custom relative py-24">
-
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-
-            {/* Left */}
-
+        <div className="container-custom relative z-10">
+          <div className="grid lg:grid-cols-12 gap-12 lg:gap-10 items-center">
+            {/* Left Content Area */}
             <motion.div
-              initial={{ opacity: 0, y: 60 }}
+              initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: .8 }}
+              transition={{ duration: 0.8 }}
+              className="lg:col-span-6 space-y-6 sm:space-y-7"
             >
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100/90 border border-emerald-300/60 px-4 py-2 text-xs sm:text-sm font-semibold text-emerald-800 shadow-sm">
+                <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>India's Trusted Biomedical Partner</span>
+              </div>
 
-              <span className="inline-flex rounded-full bg-green-100 px-5 py-2 text-sm font-semibold text-green-700">
-
-                India's Trusted Biomedical Partner
-
-              </span>
-
-              <h1 className="mt-8 text-5xl lg:text-7xl font-black leading-tight text-slate-900">
-
+              {/* Title */}
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 leading-[1.15]">
                 {loading ? (
-
                   <div className="space-y-4 animate-pulse">
-
-                    <div className="h-12 w-3/4 rounded bg-green-100"></div>
-
-                    <div className="h-12 w-2/3 rounded bg-green-100"></div>
-
+                    <div className="h-12 w-3/4 rounded-xl bg-emerald-100"></div>
+                    <div className="h-12 w-2/3 rounded-xl bg-emerald-100"></div>
                   </div>
-
                 ) : (
-
                   <>
-                    {heroData.title}
+                    <span>{displayTitle}</span>
 
                     {city && (
-
-                      <span className="block mt-3 text-2xl lg:text-4xl font-bold text-green-600">
-
+                      <span className="block mt-2 text-2xl lg:text-4xl font-extrabold text-emerald-600 bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-700">
                         in {city}
-
                       </span>
-
                     )}
-
                   </>
-
                 )}
-
               </h1>
 
+              {/* Subtitle / Description */}
               {loading ? (
-
-                <div className="mt-8 space-y-3 animate-pulse">
-
-                  <div className="h-4 rounded bg-green-100"></div>
-
-                  <div className="h-4 w-11/12 rounded bg-green-100"></div>
-
-                  <div className="h-4 w-8/12 rounded bg-green-100"></div>
-
+                <div className="space-y-3 animate-pulse">
+                  <div className="h-4 rounded bg-emerald-100"></div>
+                  <div className="h-4 w-11/12 rounded bg-emerald-100"></div>
+                  <div className="h-4 w-8/12 rounded bg-emerald-100"></div>
                 </div>
-
               ) : (
-
-                <p className="mt-8 max-w-xl text-lg leading-8 text-slate-600">
-
-                  {heroData.description}
-
+                <p className="text-base sm:text-lg leading-relaxed text-slate-600 max-w-xl">
+                  {displayDesc}
                   {city && (
                     <>
                       {" "}across <strong>{city}</strong>
                     </>
                   )}
-
                 </p>
-
               )}
 
-              <div className="mt-10 flex flex-wrap gap-4">
+              {/* Feature Points */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <div className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-700">
+                  <div className="h-6 w-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                    <CheckCircle2 size={16} />
+                  </div>
+                  <span>ISO 9001:2015 Certified Equipment</span>
+                </div>
+                <div className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-700">
+                  <div className="h-6 w-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                    <CheckCircle2 size={16} />
+                  </div>
+                  <span>Pan-India On-Site Installation</span>
+                </div>
+                <div className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-700">
+                  <div className="h-6 w-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                    <CheckCircle2 size={16} />
+                  </div>
+                  <span>24/7 AMC Maintenance & Repair</span>
+                </div>
+                <div className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-700">
+                  <div className="h-6 w-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                    <CheckCircle2 size={16} />
+                  </div>
+                  <span>Genuine Spares & Full Warranty</span>
+                </div>
+              </div>
 
+              {/* CTAs */}
+              <div className="pt-3 flex flex-wrap items-center gap-4">
                 {loading ? (
-
                   <>
-                    <div className="h-14 w-48 animate-pulse rounded-xl bg-green-100"></div>
-
-                    <div className="h-14 w-40 animate-pulse rounded-xl bg-green-100"></div>
+                    <div className="h-14 w-48 animate-pulse rounded-2xl bg-emerald-100"></div>
+                    <div className="h-14 w-40 animate-pulse rounded-2xl bg-emerald-100"></div>
                   </>
-
                 ) : (
-
                   <>
                     <Link href={makeLink("/items")}>
-
-                      <button className="rounded-xl bg-green-600 px-8 py-4 font-semibold text-white hover:bg-green-700">
-
-                        {heroData.button1Text || "Explore Products"}
-
+                      <button className="group relative inline-flex items-center gap-3 rounded-2xl bg-emerald-600 px-7 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold text-white shadow-xl shadow-emerald-600/25 transition-all duration-300 hover:bg-emerald-700 hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-600/40">
+                        <span>{displayBtn1}</span>
+                        <ArrowRight
+                          size={18}
+                          className="transition-transform group-hover:translate-x-1"
+                        />
                       </button>
-
                     </Link>
 
                     <Link href={makeLink("/contact")}>
-
-                      <button className="rounded-xl border border-green-600 px-8 py-4 font-semibold text-green-700 hover:bg-green-50">
-
-                        {heroData.button2Text || "Get Quote"}
-
+                      <button className="inline-flex items-center gap-2.5 rounded-2xl border-2 border-emerald-600/30 bg-white/90 backdrop-blur-md px-7 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold text-emerald-700 transition-all duration-300 hover:bg-emerald-50 hover:border-emerald-600 hover:-translate-y-1 shadow-sm">
+                        <PhoneCall size={18} />
+                        <span>{displayBtn2}</span>
                       </button>
-
                     </Link>
-
                   </>
-
                 )}
-
               </div>
 
-            </motion.div>
-
-            {/* Right */}
-
-            <motion.div
-              initial={{ opacity: 0, y: 60 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: .2 }}
-            >
-
-              <div className="grid grid-cols-2 gap-6">
-
-                <div className="rounded-3xl bg-white p-8 shadow-xl border border-green-100">
-                  <h2 className="text-5xl font-black text-green-600">
-                    5000+
-                  </h2>
-                  <p className="mt-3 text-slate-600">
-                    Happy Customers
-                  </p>
-                </div>
-
-                <div className="rounded-3xl bg-green-600 p-8 text-white shadow-xl">
-                  <h2 className="text-5xl font-black">
-                    10+
-                  </h2>
-                  <p className="mt-3">
-                    Years Experience
-                  </p>
-                </div>
-
-                <div className="col-span-2 rounded-3xl bg-white p-8 shadow-xl border border-green-100">
-
-                  <h3 className="text-2xl font-bold">
-
-                    Why Customers Choose Us
-
-                  </h3>
-
-                  <div className="mt-8 space-y-5">
-
-                    <div className="flex items-center gap-4">
-
-                      <div className="h-12 w-12 rounded-xl bg-green-100 flex items-center justify-center">
-
-                        ✅
-
-                      </div>
-
-                      <div>
-
-                        <h4 className="font-semibold">
-
-                          Premium Quality
-
-                        </h4>
-
-                        <p className="text-sm text-slate-500">
-
-                          Genuine biomedical equipment.
-
-                        </p>
-
-                      </div>
-
-                    </div>
-
-                    <div className="flex items-center gap-4">
-
-                      <div className="h-12 w-12 rounded-xl bg-green-100 flex items-center justify-center">
-
-                        🚚
-
-                      </div>
-
-                      <div>
-
-                        <h4 className="font-semibold">
-
-                          Fast Delivery
-
-                        </h4>
-
-                        <p className="text-sm text-slate-500">
-
-                          Delivery across India.
-
-                        </p>
-
-                      </div>
-
-                    </div>
-
-                    <div className="flex items-center gap-4">
-
-                      <div className="h-12 w-12 rounded-xl bg-green-100 flex items-center justify-center">
-
-                        🛠
-
-                      </div>
-
-                      <div>
-
-                        <h4 className="font-semibold">
-
-                          Service Support
-
-                        </h4>
-
-                        <p className="text-sm text-slate-500">
-
-                          Installation & maintenance.
-
-                        </p>
-
-                      </div>
-
-                    </div>
-
+              {/* Rating & Trust Social Proof */}
+              <div className="pt-3 flex items-center gap-4 border-t border-slate-200/80">
+                <div className="flex -space-x-2">
+                  <div className="h-9 w-9 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center text-white text-xs font-bold shadow">
+                    4.9
                   </div>
-
+                  <div className="h-9 w-9 rounded-full bg-teal-600 border-2 border-white flex items-center justify-center text-white text-xs font-bold shadow">
+                    ★
+                  </div>
+                  <div className="h-9 w-9 rounded-full bg-slate-900 border-2 border-white flex items-center justify-center text-white text-xs font-bold shadow">
+                    5K+
+                  </div>
                 </div>
-
+                <div>
+                  <div className="flex items-center gap-1 text-amber-400">
+                    <Star size={15} fill="currentColor" />
+                    <Star size={15} fill="currentColor" />
+                    <Star size={15} fill="currentColor" />
+                    <Star size={15} fill="currentColor" />
+                    <Star size={15} fill="currentColor" />
+                    <span className="text-xs font-extrabold text-slate-800 ml-1">
+                      4.9 / 5.0 Rating
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Trusted by 5,000+ Hospitals, Labs & Clinics
+                  </p>
+                </div>
               </div>
-
             </motion.div>
 
+            {/* Right Carousel Slider */}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.8 }}
+              className="lg:col-span-6 w-full"
+            >
+              <HeroCarousel makeLink={makeLink} />
+            </motion.div>
           </div>
-
         </div>
-
       </section>
-      <section className="bg-white py-20">
 
+      {/* ============================================================
+          STATS BAR
+      ============================================================ */}
+      <section className="bg-white py-16 border-y border-emerald-100">
         <div className="container-custom">
-
-          {/* Heading */}
-
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: .6 }}
-            viewport={{ once: true }}
-            className="text-center"
-          >
-
-            <span className="rounded-full bg-green-100 px-5 py-2 text-sm font-semibold text-green-700">
-
-              TRUSTED ACROSS INDIA
-
-            </span>
-
-            <h2 className="mt-5 text-4xl font-black text-slate-900">
-
-              Trusted By Hospitals,
-              Laboratories & Healthcare Professionals
-
-            </h2>
-
-            <p className="mx-auto mt-5 max-w-3xl text-slate-600 leading-8">
-
-              Delivering reliable biomedical equipment with quality,
-              innovation and nationwide service support.
-
-            </p>
-
-          </motion.div>
-
-          {/* Stats */}
-
-          <div className="mt-16 grid gap-8 md:grid-cols-2 xl:grid-cols-4">
-
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {stats.map((item, index) => {
               const Icon = item.icon;
-
               return (
-
                 <motion.div
                   key={index}
-                  initial={{ opacity: 0, y: 40 }}
+                  initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * .15 }}
+                  transition={{ delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className="group rounded-3xl border border-green-100 bg-green-50 p-8 transition hover:-translate-y-2 hover:bg-green-400 hover:text-white"
+                  className="group rounded-3xl border border-emerald-100 bg-gradient-to-b from-emerald-50/50 to-white p-7 transition duration-300 hover:-translate-y-1 hover:border-emerald-300 hover:shadow-xl hover:shadow-emerald-100/50"
                 >
-
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow">
-
-                    <Icon
-                      size={30}
-                      className="text-green-600 group-hover:text-green-600"
-                    />
-
+                  <div className="flex items-center justify-between">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-md shadow-emerald-600/20 group-hover:scale-110 transition">
+                      <Icon size={26} />
+                    </div>
+                    <span className="text-3xl font-black text-emerald-600">
+                      {item.number}
+                    </span>
                   </div>
-
-                  <h3 className="mt-8 text-5xl font-black">
-
-                    {item.number}
-
-                  </h3>
-
-                  <p className="mt-3 text-slate-600 group-hover:text-white">
-
+                  <h3 className="mt-6 text-xl font-extrabold text-slate-900">
                     {item.title}
-
+                  </h3>
+                  <p className="mt-1 text-xs font-medium text-slate-500">
+                    {item.subtitle}
                   </p>
-
                 </motion.div>
-
               );
             })}
-
           </div>
-
         </div>
-
       </section>
-      <section className="section-padding bg-gradient-to-b from-white to-green-50">
 
+      {/* ============================================================
+          PRODUCT CATEGORY SHOWCASE
+      ============================================================ */}
+      <section className="py-20 bg-slate-50">
         <div className="container-custom">
-
           <SectionTitle
-            badge="Our Services"
-            title="Professional Biomedical Services"
-            description="Comprehensive biomedical solutions for hospitals, laboratories and healthcare institutions."
+            badge="Product Categories"
+            title="Comprehensive Medical & Diagnostic Solutions"
+            description="Explore our specialized product categories engineered for pathology laboratories, hospital ICUs, imaging centers, and diagnostic facilities."
+            center
+          />
+
+          <div className="mt-14 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+            {categoryShowcase.map((cat, idx) => {
+              const Icon = cat.icon;
+              return (
+                <motion.div
+                  key={cat.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.1 }}
+                  viewport={{ once: true }}
+                  className="group relative rounded-3xl bg-white p-8 border border-emerald-100 shadow-lg shadow-slate-100 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:border-emerald-300 flex flex-col justify-between"
+                >
+                  <div>
+                    <div
+                      className={`h-14 w-14 rounded-2xl bg-gradient-to-br ${cat.color} text-white flex items-center justify-center shadow-lg shadow-emerald-600/20 group-hover:scale-110 transition`}
+                    >
+                      <Icon size={26} />
+                    </div>
+                    <span className="mt-6 inline-block text-[11px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
+                      {cat.badge}
+                    </span>
+                    <h3 className="mt-3 text-xl font-black text-slate-900 group-hover:text-emerald-600 transition">
+                      {cat.title}
+                    </h3>
+                    <p className="mt-3 text-xs leading-relaxed text-slate-600">
+                      {cat.desc}
+                    </p>
+                  </div>
+
+                  <div className="mt-8 pt-4 border-t border-slate-100">
+                    <Link
+                      href={makeLink(cat.link)}
+                      className="inline-flex items-center gap-2 text-xs font-bold text-emerald-600 hover:text-emerald-700"
+                    >
+                      Explore Products
+                      <ArrowRight size={14} className="group-hover:translate-x-1 transition" />
+                    </Link>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================
+          FEATURED PRODUCTS CATALOG GRID
+      ============================================================ */}
+      <section className="section-padding bg-white">
+        <div className="container-custom">
+          <SectionTitle
+            badge="Featured Equipment"
+            title="High-Demand Biomedical Instruments"
+            description="Browse our top-selling diagnostic analyzers, patient monitors, and laboratory devices trusted by healthcare institutions."
             center
           />
 
           <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {displayProducts.slice(0, 6).map((product) => (
+              <motion.div
+                key={product.slug || product.title}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                className="group overflow-hidden rounded-[32px] border border-emerald-100 bg-white shadow-lg shadow-slate-100 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:border-emerald-300 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="relative h-60 bg-gradient-to-br from-emerald-50/50 to-slate-50 flex items-center justify-center p-6 border-b border-slate-100">
+                    <img
+                      src={
+                        product.images?.[0] ||
+                        product.image ||
+                        "/images/biomedical-hero-1.png"
+                      }
+                      alt={product.title}
+                      className="max-h-48 w-auto object-contain transition duration-500 group-hover:scale-105"
+                      onError={(e) => {
+                        e.currentTarget.src =
+                          "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=600&q=80";
+                      }}
+                    />
+                    <span className="absolute top-4 right-4 bg-white/90 backdrop-blur-md text-emerald-700 text-[10px] font-extrabold uppercase px-3 py-1 rounded-full border border-emerald-200 shadow-sm">
+                      {product.category || "Biomedical"}
+                    </span>
+                  </div>
 
-            {services.slice(0, 3).map((service, index) => (
+                  <div className="p-7">
+                    <h3 className="text-xl font-extrabold text-slate-900 group-hover:text-emerald-600 transition line-clamp-1">
+                      {product.title}
+                    </h3>
+                    <p className="mt-2 text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                      {product.description ||
+                        product.desc ||
+                        "Advanced medical equipment designed for precision diagnostic performance."}
+                    </p>
 
+                    <div className="mt-5 grid grid-cols-2 gap-2 text-xs">
+                      <div className="bg-emerald-50/60 p-2.5 rounded-xl border border-emerald-100">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase block">
+                          Brand
+                        </span>
+                        <span className="font-semibold text-slate-800">
+                          {product.brand || "Raj Biosis"}
+                        </span>
+                      </div>
+                      <div className="bg-emerald-50/60 p-2.5 rounded-xl border border-emerald-100">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase block">
+                          Application
+                        </span>
+                        <span className="font-semibold text-slate-800 line-clamp-1">
+                          {product.usage || "Clinical / Hospital"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="px-7 pb-7 pt-2 flex items-center justify-between border-t border-slate-100">
+                  <Link
+                    href={makeLink(`/items/${product.slug}`)}
+                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white text-xs font-bold py-3 transition shadow-md"
+                  >
+                    View Product Details
+                    <ArrowRight size={14} />
+                  </Link>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="mt-14 text-center">
+            <Link href={makeLink("/items")}>
+              <button className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-8 py-4 text-sm font-extrabold text-white hover:bg-emerald-700 transition shadow-xl shadow-emerald-600/20">
+                <span>View Full Equipment Catalog</span>
+                <ArrowRight size={18} />
+              </button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================
+          SERVICES OVERVIEW
+      ============================================================ */}
+      <section className="section-padding bg-gradient-to-b from-white to-emerald-50/60 border-t border-slate-100">
+        <div className="container-custom">
+          <SectionTitle
+            badge="Our Services"
+            title="Professional Biomedical Services & Technical AMC"
+            description="Comprehensive engineering, calibration, installation, and maintenance services for healthcare facilities."
+            center
+          />
+
+          <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {displayServices.slice(0, 3).map((service, index) => (
               <ServiceCard
                 key={index}
                 icon={icons[index]}
                 title={service.title}
-                description={service.desc}
+                description={service.desc || service.description}
               />
-
             ))}
-
           </div>
 
           <div className="mt-14 text-center">
-
             <Link href={makeLink("/services")}>
-
-              <button className="inline-flex items-center gap-2 rounded-2xl bg-green-600 px-8 py-4 font-semibold text-white hover:bg-green-700 transition">
-
-                View All Services
-
+              <button className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-8 py-4 text-sm font-extrabold text-white hover:bg-emerald-700 transition shadow-lg">
+                View All Technical Services
                 <ArrowRight size={18} />
-
               </button>
-
             </Link>
-
           </div>
-
         </div>
-
       </section>
-      <section className="section-padding bg-white">
 
+      {/* ============================================================
+          INTERNATIONAL B2B & EXPORT SECTION
+      ============================================================ */}
+      <section className="py-20 bg-slate-950 text-white relative overflow-hidden">
+        <div className="absolute top-0 right-0 h-[400px] w-[400px] bg-emerald-500/10 rounded-full blur-[150px] pointer-events-none" />
+        <div className="container-custom relative z-10">
+          <div className="grid lg:grid-cols-12 gap-12 items-center">
+            <div className="lg:col-span-7 space-y-6">
+              <span className="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 border border-emerald-500/40 px-4 py-1.5 text-xs font-bold text-emerald-400">
+                <Globe size={14} />
+                <span>International B2B & Medical Export Supply</span>
+              </span>
+              <h2 className="text-3xl sm:text-5xl font-black text-white leading-tight">
+                Global Supplier & Exporter of Diagnostic & ICU Machinery
+              </h2>
+              <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl">
+                Raj Biosis caters to international B2B buyers, hospital procurement teams, government healthcare tenders, and regional medical distributors with export-compliant medical equipment, certified calibration, and door-to-door shipping.
+              </p>
+
+              <div className="grid sm:grid-cols-2 gap-4 pt-2">
+                <div className="flex items-start gap-3 bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+                  <BadgeCheck size={20} className="text-emerald-400 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="text-sm font-bold text-white">CE & ISO Standards</h4>
+                    <p className="text-xs text-slate-400 mt-1">Certified quality assurance for export orders.</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+                  <Truck size={20} className="text-emerald-400 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="text-sm font-bold text-white">Export Freight Logistics</h4>
+                    <p className="text-xs text-slate-400 mt-1">Air & ocean cargo packaging with insurance.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-5 bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-2xl">
+              <h3 className="text-xl font-bold text-white mb-2">Request B2B Export Quote</h3>
+              <p className="text-xs text-slate-400 mb-6">
+                Submit bulk enquiry for hospital projects, distribution rights, or export pricing.
+              </p>
+
+              <form onSubmit={handleQuoteSubmit} className="space-y-4">
+                <input
+                  type="text"
+                  placeholder="Full Name *"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  className="w-full bg-slate-800 text-white placeholder-slate-500 text-xs rounded-xl px-4 py-3 border border-slate-700 outline-none focus:border-emerald-500"
+                />
+                <input
+                  type="email"
+                  placeholder="Business Email"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  className="w-full bg-slate-800 text-white placeholder-slate-500 text-xs rounded-xl px-4 py-3 border border-slate-700 outline-none focus:border-emerald-500"
+                />
+                <input
+                  type="tel"
+                  placeholder="Mobile / WhatsApp Number *"
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                  className="w-full bg-slate-800 text-white placeholder-slate-500 text-xs rounded-xl px-4 py-3 border border-slate-700 outline-none focus:border-emerald-500"
+                />
+                <input
+                  type="text"
+                  placeholder="Hospital / Company Name"
+                  value={form.company}
+                  onChange={(e) => setForm({ ...form, company: e.target.value })}
+                  className="w-full bg-slate-800 text-white placeholder-slate-500 text-xs rounded-xl px-4 py-3 border border-slate-700 outline-none focus:border-emerald-500"
+                />
+                <textarea
+                  rows={3}
+                  placeholder="Specify Product Requirement & Quantity"
+                  value={form.requirement}
+                  onChange={(e) => setForm({ ...form, requirement: e.target.value })}
+                  className="w-full bg-slate-800 text-white placeholder-slate-500 text-xs rounded-xl px-4 py-3 border border-slate-700 outline-none focus:border-emerald-500 resize-none"
+                />
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs py-3.5 rounded-xl transition"
+                >
+                  {submitting ? "Submitting Request..." : "Request Fast Itemized Quotation"}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================
+          FAQ SECTION WITH SCHEMA ACCORDION
+      ============================================================ */}
+      <section className="py-20 bg-white">
         <div className="container-custom">
-
           <SectionTitle
-            badge="Featured Products"
-            title="Popular Biomedical Equipment"
-            description="Explore our most demanded biomedical and diagnostic equipment."
+            badge="Frequently Asked Questions"
+            title="Everything You Need to Know About Ordering & Service"
+            description="Find quick answers to common questions regarding biomedical equipment purchase, installation support, AMC service contracts, and export logistics."
             center
           />
 
-          <div className="mt-16 grid gap-8 md:grid-cols-2 xl:grid-cols-3">
-
-            {products.slice(0, 3).map((product) => (
-
-              <div
-                key={product.slug || product.id || product.title}
-                className="group overflow-hidden rounded-[30px] border border-green-100 bg-white shadow-lg transition hover:-translate-y-2 hover:shadow-2xl"
-              >
-
-                <div className="h-64 bg-gradient-to-br from-green-50 to-white flex items-center justify-center p-8">
-
-                  <img
-                    src={
-                      product.images?.[0] ||
-                      product.image
-                    }
-                    alt={product.title}
-                    className="max-h-52 object-contain transition duration-300 group-hover:scale-105"
-                  />
-
-                </div>
-
-                <div className="p-7">
-
-                  <span className="inline-block rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
-
-                    {product.category}
-
-                  </span>
-
-                  <h3 className="mt-4 text-2xl font-bold">
-
-                    {product.title}
-
-                  </h3>
-
-                  <p className="mt-3 line-clamp-3 text-slate-600 leading-7">
-
-                    {product.description ||
-                      product.desc}
-
-                  </p>
-
-                  <Link
-                    href={makeLink(`/items/${product.slug}`)}
-                    className="mt-8 inline-flex items-center gap-2 font-semibold text-green-600 hover:text-green-700"
+          <div className="mt-14 max-w-4xl mx-auto space-y-4">
+            {homeFaqs.map((faq, idx) => {
+              const isOpen = openFaq === idx;
+              return (
+                <div
+                  key={idx}
+                  className="rounded-2xl border border-slate-200 overflow-hidden bg-slate-50/60 transition"
+                >
+                  <button
+                    onClick={() => setOpenFaq(isOpen ? -1 : idx)}
+                    className="w-full text-left p-5 flex items-center justify-between font-bold text-slate-900 text-sm sm:text-base hover:text-emerald-600 transition"
                   >
-
-                    View Product
-
-                    <ArrowRight size={18} />
-
-                  </Link>
-
+                    <span>{faq.question}</span>
+                    <ChevronDown
+                      size={20}
+                      className={`text-slate-400 transition-transform ${
+                        isOpen ? "rotate-180 text-emerald-600" : ""
+                      }`}
+                    />
+                  </button>
+                  <AnimatePresence>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="px-5 pb-5 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-200/60 pt-3"
+                      >
+                        {faq.answer}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
-
-              </div>
-
-            ))}
-
+              );
+            })}
           </div>
-
-          <div className="mt-14 text-center">
-
-            <Link href={makeLink("/items")}>
-
-              <button className="inline-flex items-center gap-2 rounded-2xl bg-green-600 px-8 py-4 font-semibold text-white hover:bg-green-700 transition">
-
-                View All Products
-
-                <ArrowRight size={18} />
-
-              </button>
-
-            </Link>
-
-          </div>
-
         </div>
-
       </section>
     </>
   );
