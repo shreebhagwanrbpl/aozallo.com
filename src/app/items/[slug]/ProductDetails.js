@@ -30,15 +30,14 @@ import {
   ExternalLink,
 } from "lucide-react";
 import Link from "next/link";
+import { getProductImage } from "@/lib/image-utils";
 
 export default function ProductDetails({ slug, product: initialProduct }) {
   const [product, setProduct] = useState(initialProduct || null);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [selectedImage, setSelectedImage] = useState(() => {
     if (initialProduct) {
-      return initialProduct.images?.length > 0
-        ? initialProduct.images[0]
-        : initialProduct.image || "";
+      return getProductImage(initialProduct, "/images/medical-analyzer-default.png");
     }
     return "";
   });
@@ -85,8 +84,7 @@ export default function ProductDetails({ slug, product: initialProduct }) {
 
         if (found) {
           setProduct(found);
-          const firstImg =
-            found.images?.length > 0 ? found.images[0] : found.image || "";
+          const firstImg = getProductImage(found, "/images/medical-analyzer-default.png");
           setSelectedImage(firstImg);
         }
       } catch (err) {

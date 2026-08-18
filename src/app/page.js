@@ -11,6 +11,8 @@ import { doc, getDoc, addDoc, collection } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import toast from "react-hot-toast";
 import { generateFAQSchema } from "@/lib/seo";
+import { getProductImage } from "@/lib/image-utils";
+import { fetchFullCatalog } from "@/lib/data-fetcher";
 import {
   Microscope,
   FlaskConical,
@@ -68,7 +70,7 @@ const categoryShowcase = [
     badge: "Hospital Grade",
     icon: Activity,
     color: "from-emerald-500 to-teal-700",
-    link: "/items",
+    link: "/category/icu-critical-care",
   },
   {
     id: "pathology",
@@ -77,7 +79,7 @@ const categoryShowcase = [
     badge: "High Throughput",
     icon: FlaskConical,
     color: "from-green-600 to-emerald-800",
-    link: "/items",
+    link: "/category/pathology-analyzer",
   },
   {
     id: "imaging",
@@ -86,7 +88,7 @@ const categoryShowcase = [
     badge: "Advanced Diagnostic",
     icon: Microscope,
     color: "from-teal-600 to-cyan-700",
-    link: "/items",
+    link: "/category/ultrasound-imaging",
   },
   {
     id: "reagents",
@@ -95,7 +97,7 @@ const categoryShowcase = [
     badge: "Certified Quality",
     icon: Stethoscope,
     color: "from-emerald-600 to-green-700",
-    link: "/items",
+    link: "/category/reagents",
   },
 ];
 
@@ -277,11 +279,24 @@ export default function Home({ city: initialCity }) {
         }
 
         // Products
+        let loadedProducts = [];
         const productSnap = await getDoc(
           doc(db, "websites", "aozallocom", "pages", "products")
         );
-        if (productSnap.exists()) {
-          const data = (productSnap.data().products || []).map((item) => ({
+        if (productSnap.exists() && Array.isArray(productSnap.data().products)) {
+          loadedProducts = productSnap.data().products;
+        }
+
+        // If no products doc or empty, fallback to full catalog
+        if (loadedProducts.length === 0) {
+          const catalog = await fetchFullCatalog();
+          if (catalog && catalog.length > 0) {
+            loadedProducts = catalog;
+          }
+        }
+
+        if (loadedProducts.length > 0) {
+          const data = loadedProducts.map((item) => ({
             ...item,
             slug:
               item.slug ||
@@ -654,16 +669,11 @@ export default function Home({ city: initialCity }) {
                 <div>
                   <div className="relative h-60 bg-gradient-to-br from-emerald-50/50 to-slate-50 flex items-center justify-center p-6 border-b border-slate-100">
                     <img
-                      src={
-                        product.images?.[0] ||
-                        product.image ||
-                        "/images/biomedical-hero-1.png"
-                      }
-                      alt={product.title}
+                      src={getProductImage(product, "/images/biomedical-hero-1.png")}
+                      alt={product.title || "Biomedical Product"}
                       className="max-h-48 w-auto object-contain transition duration-500 group-hover:scale-105"
                       onError={(e) => {
-                        e.currentTarget.src =
-                          "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=600&q=80";
+                        e.currentTarget.src = "/images/medical-analyzer-default.png";
                       }}
                     />
                     <span className="absolute top-4 right-4 bg-white/90 backdrop-blur-md text-emerald-700 text-[10px] font-extrabold uppercase px-3 py-1 rounded-full border border-emerald-200 shadow-sm">

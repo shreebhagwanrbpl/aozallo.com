@@ -82,12 +82,12 @@ export default function Footer() {
   };
 
   const productCategories = [
-    { name: "ICU & Critical Care Equipment", link: "/items" },
-    { name: "Hematology & CBC Analyzers", link: "/items" },
-    { name: "Biochemistry Analyzers", link: "/items" },
-    { name: "Ultrasound & Diagnostic Imaging", link: "/items" },
-    { name: "Electrolyte Analyzers & Readers", link: "/items" },
-    { name: "Laboratory Reagents & Test Kits", link: "/items" },
+    { name: "ICU & Critical Care Equipment", link: "/category/icu-critical-care" },
+    { name: "Hematology & CBC Analyzers", link: "/category/pathology-analyzer" },
+    { name: "Biochemistry Analyzers", link: "/category/biochemistry" },
+    { name: "Ultrasound & Diagnostic Imaging", link: "/category/ultrasound-imaging" },
+    { name: "Electrolyte Analyzers & Readers", link: "/category/electrolyte-reader" },
+    { name: "Laboratory Reagents & Test Kits", link: "/category/reagents" },
   ];
 
   if (loading) {
@@ -121,10 +121,22 @@ export default function Footer() {
         <div className="grid lg:grid-cols-12 gap-10">
           {/* Column 1: Company Info */}
           <div className="lg:col-span-4 space-y-5">
-            <Link href={makeLink("/")} className="inline-block">
-              <h2 className="text-2xl font-black tracking-tight text-white">
-                <span className="text-emerald-400">Rajbiosis</span> Private Limited
-              </h2>
+            <Link href={makeLink("/")} className="inline-flex items-center gap-3.5 group">
+              <div className="bg-white p-1.5 rounded-2xl shadow-lg border border-slate-700 shrink-0">
+                <img
+                  src="/logo.png"
+                  alt="Rajbiosis Private Limited Logo"
+                  className="h-12 w-auto object-contain transition-transform group-hover:scale-105"
+                />
+              </div>
+              <div>
+                <h2 className="text-xl font-black tracking-tight text-white leading-tight">
+                  <span className="text-emerald-400">Rajbiosis</span> Private Limited
+                </h2>
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                  Healthcare & Diagnostic Solutions
+                </span>
+              </div>
             </Link>
             <p className="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-sm">
               India's premier biomedical & diagnostic equipment partner. Supplying hospital-grade patient monitors, hematology analyzers, ultrasound machines, and 24/7 technical AMC maintenance across India & export markets.

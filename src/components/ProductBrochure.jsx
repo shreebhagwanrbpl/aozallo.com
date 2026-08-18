@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from "react";
 import { Download, X } from "lucide-react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { getProductImage } from "@/lib/image-utils";
 
 export default function ProductBrochure({ product, selectedImage: propSelectedImage, isOpen, onClose }) {
   const printRef = useRef(null);
@@ -11,36 +12,81 @@ export default function ProductBrochure({ product, selectedImage: propSelectedIm
   const [base64Image, setBase64Image] = useState("");
 
   const rawImage =
-    propSelectedImage ||
-    product?.images?.[0] ||
-    product?.image ||
-    product?.img ||
-    product?.imageUrl ||
-    "/images/medical-analyzer-default.png";
+    propSelectedImage && typeof propSelectedImage === "string" && propSelectedImage.trim() !== ""
+      ? propSelectedImage
+      : getProductImage(product, "/images/medical-analyzer-default.png");
 
   useEffect(() => {
     if (!isOpen || !rawImage) return;
 
     let isMounted = true;
 
-    // Convert rawImage URL to pure Base64 via Blob fetch (bypasses canvas tainting)
+    // Convert image URL to pure Base64 for clean PDF embedding
     const loadAsBase64 = async (url) => {
-      if (!url) return "";
+      if (!url || typeof url !== "string") return "";
       if (url.startsWith("data:")) return url;
 
+      // Stage 1: Try direct CORS fetch
       try {
-        const response = await fetch(url);
-        const blob = await response.blob();
-        return await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.onerror = () => resolve("");
-          reader.readAsDataURL(blob);
-        });
+        const response = await fetch(url, { mode: "cors" });
+        if (response.ok) {
+          const blob = await response.blob();
+          const b64 = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result || "");
+            reader.onerror = () => resolve("");
+            reader.readAsDataURL(blob);
+          });
+          if (b64) return b64;
+        }
       } catch (err) {
-        console.warn("Base64 fetch fallback for PDF:", err);
-        return "";
+        console.warn("Direct fetch base64 failed for PDF image:", err);
       }
+
+      // Stage 2: Try Canvas drawing with Image element
+      try {
+        const b64 = await new Promise((resolve) => {
+          const img = new Image();
+          img.crossOrigin = "Anonymous";
+          img.onload = () => {
+            try {
+              const canvas = document.createElement("canvas");
+              canvas.width = img.naturalWidth || img.width || 400;
+              canvas.height = img.naturalHeight || img.height || 400;
+              const ctx = canvas.getContext("2d");
+              ctx.drawImage(img, 0, 0);
+              resolve(canvas.toDataURL("image/png"));
+            } catch (e) {
+              resolve("");
+            }
+          };
+          img.onerror = () => resolve("");
+          img.src = url;
+        });
+        if (b64) return b64;
+      } catch (err) {
+        console.warn("Canvas element base64 fallback failed:", err);
+      }
+
+      // Stage 3: Guaranteed Fallback to local default medical image if rawImage failed
+      if (url !== "/images/medical-analyzer-default.png") {
+        try {
+          const response = await fetch("/images/medical-analyzer-default.png");
+          if (response.ok) {
+            const blob = await response.blob();
+            return await new Promise((resolve) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result || "");
+              reader.onerror = () => resolve("");
+              reader.readAsDataURL(blob);
+            });
+          }
+        } catch (fallbackErr) {
+          console.warn("Default fallback fetch failed:", fallbackErr);
+        }
+      }
+
+      return "";
     };
 
     loadAsBase64(rawImage).then((b64) => {

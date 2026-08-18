@@ -1,64 +1,69 @@
 import { fetchFullCatalog } from "@/lib/data-fetcher-server";
 import { db } from "@/lib/firebase";
 import { collection, getDocs } from "firebase/firestore";
+import { SITE_URL } from "@/lib/seo";
 
 export default async function sitemap() {
-  const baseUrl = "https://aozallo.com";
+  const baseUrl = SITE_URL;
   const urls = [];
   const now = new Date();
 
-  // 1. Core Static Pages
-  urls.push(
-    {
-      url: baseUrl,
+  // 1. Core Static Authority Pages
+  const corePages = [
+    { url: baseUrl, priority: 1.0, changeFrequency: "daily" },
+    { url: `${baseUrl}/items`, priority: 0.9, changeFrequency: "daily" },
+    { url: `${baseUrl}/services`, priority: 0.8, changeFrequency: "weekly" },
+    { url: `${baseUrl}/about`, priority: 0.8, changeFrequency: "monthly" },
+    { url: `${baseUrl}/contact`, priority: 0.8, changeFrequency: "monthly" },
+  ];
+
+  corePages.forEach((page) => {
+    urls.push({
+      url: page.url,
       lastModified: now,
-      changeFrequency: "daily",
-      priority: 1.0,
-    },
-    {
-      url: `${baseUrl}/about`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/services`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/contact`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/items`,
-      lastModified: now,
-      changeFrequency: "daily",
-      priority: 0.9,
-    }
-  );
+      changeFrequency: page.changeFrequency,
+      priority: page.priority,
+    });
+  });
 
   try {
-    // 2. Dynamic Products
+    // 2. Fetch Catalog Products & Categories
     const products = await fetchFullCatalog();
-    const seenSlugs = new Set();
+    const seenProductSlugs = new Set();
+    const categoriesSet = new Set();
 
     products.forEach((product) => {
-      if (!product.slug || seenSlugs.has(product.slug)) return;
-      seenSlugs.add(product.slug);
+      // Products
+      if (product.slug && !seenProductSlugs.has(product.slug)) {
+        seenProductSlugs.add(product.slug);
+        urls.push({
+          url: `${baseUrl}/items/${product.slug}`,
+          lastModified: now,
+          changeFrequency: "weekly",
+          priority: 0.9,
+        });
+      }
 
-      urls.push({
-        url: `${baseUrl}/items/${product.slug}`,
-        lastModified: now,
-        changeFrequency: "weekly",
-        priority: 0.9,
-      });
+      // Categories
+      if (product.category) {
+        const catSlug = product.category
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9\s-]/g, "")
+          .replace(/\s+/g, "-");
+        if (catSlug && !categoriesSet.has(catSlug)) {
+          categoriesSet.add(catSlug);
+          urls.push({
+            url: `${baseUrl}/category/${catSlug}`,
+            lastModified: now,
+            changeFrequency: "weekly",
+            priority: 0.8,
+          });
+        }
+      }
     });
 
-    // 3. District Pages (Cleaned without product duplication)
+    // 3. Serviceable Location / District Pages
     const districtSnap = await getDocs(
       collection(db, "websites", "aozallocom", "districts")
     );
@@ -72,7 +77,7 @@ export default async function sitemap() {
         url: `${baseUrl}/${slug}`,
         lastModified: now,
         changeFrequency: "weekly",
-        priority: 0.6,
+        priority: 0.7,
       });
     });
   } catch (error) {

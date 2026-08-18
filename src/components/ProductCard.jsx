@@ -1,7 +1,9 @@
 import React from "react";
 import Link from "next/link";
+import { getProductImage } from "@/lib/image-utils";
 
 const ProductCard = React.memo(function ProductCard({ product, district }) {
+    const imgSrc = getProductImage(product, "/images/medical-analyzer-default.png");
     return (
         <div
             id={product.slug}
@@ -9,15 +11,15 @@ const ProductCard = React.memo(function ProductCard({ product, district }) {
         >
             <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr_180px] gap-5 lg:gap-8 items-center">
                 {/* Image */}
-                <div className="relative h-[180px] sm:h-[220px] rounded-2xl lg:rounded-3xl overflow-hidden bg-slate-100">
+                <div className="relative h-[180px] sm:h-[220px] rounded-2xl lg:rounded-3xl overflow-hidden bg-slate-100 flex items-center justify-center p-3">
                     <img
-                        src={product.images?.[0] || product.image || "/placeholder.jpg"}
-                        alt={product.title}
+                        src={imgSrc}
+                        alt={product.title || "Biomedical Product"}
                         loading="lazy"
                         decoding="async"
-                        className="w-full h-full object-contain p-5"
+                        className="w-full h-full object-contain p-2"
                         onError={(e) => {
-                            e.currentTarget.src = "/placeholder.jpg";
+                            e.currentTarget.src = "/images/medical-analyzer-default.png";
                         }}
                     />
                 </div>
