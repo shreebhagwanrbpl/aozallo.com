@@ -29,60 +29,60 @@ const defaultServicesList = [
   {
     id: 1,
     title: "Biomedical Installation & Commissioning",
-    subtitle: "Certified Pan-India Engineer Setup",
-    desc: "Complete physical setup, electrical testing, operational configuration, and diagnostic calibration for ICU monitors, ventilators, ultrasound units, and pathology analyzers.",
-    badge: "100% Calibrated",
-    highlights: ["Pre-commissioning Hardware Audit", "Electrical Safety Compliance", "Staff Operational Orientation"],
+    subtitle: "Turnkey Engineer Setup & Calibration",
+    desc: "Complete physical mounting, high-precision electrical safety testing, network integration, and diagnostic sensor calibration for ICU monitors, ventilators, ultrasound units, and pathology analyzers.",
+    badge: "NABL Calibrated",
+    highlights: ["Pre-commissioning Safety Audit", "Electrical Isolation & Surge Validation", "Clinical Operational Orientation"],
     icon: Microscope,
     color: "from-emerald-500 to-teal-700",
   },
   {
     id: 2,
-    title: "Annual Maintenance Contracts (AMC & CMC)",
-    subtitle: "24/7 Priority Emergency Support",
-    desc: "Scheduled preventive maintenance, zero-downtime hardware inspection, genuine replacement spare parts, and round-the-clock emergency engineer dispatch.",
+    title: "Annual & Comprehensive Maintenance (AMC & CMC)",
+    subtitle: "24/7 Priority Emergency Breakdown Response",
+    desc: "Scheduled preventive maintenance, zero-downtime hardware inspection, 100% genuine OEM spare replacements, and round-the-clock emergency biomedical engineer dispatch.",
     badge: "Zero Downtime SLA",
-    highlights: ["Quarterly Preventive Audits", "Genuine Spare Parts Replacement", "Priority Breakdown Response"],
+    highlights: ["Quarterly Preventive Audits", "Genuine OEM Spare Replacements", "4-Hour Emergency Dispatch SLA"],
     icon: ShieldCheck,
     color: "from-green-600 to-emerald-800",
   },
   {
     id: 3,
     title: "Laboratory Diagnostic Equipment Calibration",
-    subtitle: "ISO 9001:2015 Compliance Testing",
-    desc: "High precision optical and electronic calibration of biochemistry analyzers, centrifuges, spectrophotometers, and pathology equipment with certified documentation.",
-    badge: "ISO Certified Reports",
-    highlights: ["NABL Traceable Calibration", "Precision Sensor Alignment", "Audit-Ready Certificates"],
+    subtitle: "ISO 9001:2015 & NABL Audit Compliance",
+    desc: "Precision optical, electronic, and fluidic calibration of clinical biochemistry analyzers, centrifuges, spectrophotometers, and pathology equipment with certified documentation.",
+    badge: "Audit-Ready Reports",
+    highlights: ["NABL Traceable Calibration Certificates", "Precision Sensor & Lamp Realignment", "Quality Control Verification"],
     icon: FlaskConical,
     color: "from-teal-600 to-cyan-700",
   },
   {
     id: 4,
-    title: "Hospital ICU & Critical Care Support",
-    subtitle: "Life Support System Engineering",
-    desc: "End-to-end medical gas pipeline monitoring, multi-para monitor integration, defibrillator calibration, and emergency life support unit maintenance.",
-    badge: "Critical Care Ready",
-    highlights: ["Multi-Para Monitor Calibration", "Ventilator Flow Validation", "Emergency Redundancy Check"],
+    title: "Hospital ICU & Critical Care Systems Maintenance",
+    subtitle: "Life-Support Hardware Reliability",
+    desc: "Comprehensive multi-parameter patient monitor calibration, ventilator flow validation, defibrillator shock output testing, and emergency life support unit maintenance.",
+    badge: "ICU Mission Critical",
+    highlights: ["Multi-Para Sensor Calibration", "Ventilator Flow & Pressure Validation", "Defibrillator Energy Verification"],
     icon: Activity,
     color: "from-emerald-600 to-green-700",
   },
   {
     id: 5,
-    title: "Staff Operational Training & Skill Development",
-    subtitle: "Clinical User & Technician Training",
-    desc: "Comprehensive hands-on training for doctors, laboratory technicians, and nursing staff to ensure accurate result interpretation and safe device usage.",
+    title: "Technician & Clinical Staff Operational Training",
+    subtitle: "User Expertise & Safety Compliance",
+    desc: "Comprehensive hands-on training for doctors, laboratory technicians, and nursing staff to ensure flawless test execution, error prevention, and safe device operation.",
     badge: "Certified Modules",
-    highlights: ["Clinical Workflow Optimization", "Basic Troubleshooting Guide", "Safety Protocol Training"],
+    highlights: ["Clinical Workflow Optimization", "Rapid On-Site Troubleshooting", "Device Safety Protocol Training"],
     icon: Stethoscope,
     color: "from-cyan-600 to-teal-800",
   },
   {
     id: 6,
-    title: "Refurbishment & Technical Hardware Upgrades",
-    subtitle: "Device Life-Extension & Recalibration",
-    desc: "Hardware component replacement, firmware upgrades, diagnostic sensor re-alignment, and factory-level reconditioning of medical machinery.",
-    badge: "Cost Effective",
-    highlights: ["Diagnostic Sensor Upgrades", "Board-Level Component Repair", "Extended Service Warranty"],
+    title: "Hardware Refurbishment & Sensor Recalibration",
+    subtitle: "Device Life Extension & Component Repair",
+    desc: "Component-level electronic repair, firmware upgrades, optical sensor realignment, and factory-standard reconditioning for laboratory and ICU machinery.",
+    badge: "Cost Optimization",
+    highlights: ["Board-Level Electronics Repair", "Optical & Fluidic Sensor Upgrades", "Extended Warranty Coverage"],
     icon: Wrench,
     color: "from-green-500 to-emerald-700",
   },
@@ -91,23 +91,23 @@ const defaultServicesList = [
 const serviceSteps = [
   {
     step: "01",
-    title: "Consultation & Facility Audit",
-    desc: "Evaluating hospital/path lab requirements, device age, and technical calibration parameters.",
+    title: "Consultation & Facility Inspection",
+    desc: "Evaluating hospital or pathology laboratory requirements, device performance history, and technical calibration parameters.",
   },
   {
     step: "02",
-    title: "Itemized Scope & Quotation",
-    desc: "Providing a clear breakdown of AMC coverage, calibration certificates, and replacement parts.",
+    title: "Itemized Scope & AMC Quotation",
+    desc: "Providing a detailed scope breakdown covering AMC service levels, calibration certificates, and genuine spare parts.",
   },
   {
     step: "03",
-    title: "On-Site Execution & Testing",
-    desc: "Certified biomedical engineers deploy to perform precision calibration, repair, or setup.",
+    title: "On-Site Execution & NABL Calibration",
+    desc: "Deployment of certified biomedical engineers to perform precise physical installation, sensor calibration, or emergency repair.",
   },
   {
     step: "04",
-    title: "Certification & 24/7 AMC Support",
-    desc: "Issuing formal compliance reports with round-the-clock hotline assistance.",
+    title: "Compliance Certification & 24/7 AMC Support",
+    desc: "Issuing formal NABL-traceable audit certificates alongside continuous 24/7 emergency hotline assistance.",
   },
 ];
 
@@ -199,11 +199,9 @@ export default function ServicesPage() {
 
       {/* Hero Banner */}
       <PageBanner
-        title="Professional Biomedical Services & Technical AMC"
-        subtitle="Delivering ISO-certified calibration, equipment installation, preventive maintenance, and 24/7 technical engineering support for hospitals & laboratories across India."
+        title="Biomedical Engineering Services & Technical AMC"
+        subtitle="Delivering ISO 9001:2015 certified calibration, turnkey equipment installation, quarterly preventive maintenance, and 24/7 emergency hotline support for hospitals & laboratories nationwide."
       />
-
-
 
       {/* Quality Standards & SLA Banner */}
       <section className="py-16 bg-white border-y border-slate-200">
@@ -215,7 +213,7 @@ export default function ServicesPage() {
               </div>
               <div>
                 <h4 className="text-sm font-bold text-slate-900">ISO 9001:2015 Certified</h4>
-                <p className="text-xs text-slate-500 mt-1">NABL traceable calibration reports for audit compliance.</p>
+                <p className="text-xs text-slate-500 mt-1">NABL-traceable calibration documentation for lab audit compliance.</p>
               </div>
             </div>
 
@@ -224,8 +222,8 @@ export default function ServicesPage() {
                 <Clock3 size={24} />
               </div>
               <div>
-                <h4 className="text-sm font-bold text-slate-900">4-Hour SLA Response</h4>
-                <p className="text-xs text-slate-500 mt-1">Priority breakdown dispatch across major medical centers.</p>
+                <h4 className="text-sm font-bold text-slate-900">Guaranteed Response SLA</h4>
+                <p className="text-xs text-slate-500 mt-1">Priority breakdown dispatch for hospital ICUs across India.</p>
               </div>
             </div>
 
@@ -234,8 +232,8 @@ export default function ServicesPage() {
                 <Zap size={24} />
               </div>
               <div>
-                <h4 className="text-sm font-bold text-slate-900">Zero-Downtime AMC</h4>
-                <p className="text-xs text-slate-500 mt-1">Scheduled quarterly preventive maintenance visits.</p>
+                <h4 className="text-sm font-bold text-slate-900">Zero-Downtime Contracts</h4>
+                <p className="text-xs text-slate-500 mt-1">Scheduled quarterly preventive audits and sensor realignment.</p>
               </div>
             </div>
 
@@ -244,8 +242,8 @@ export default function ServicesPage() {
                 <ShieldCheck size={24} />
               </div>
               <div>
-                <h4 className="text-sm font-bold text-slate-900">100% Genuine Spares</h4>
-                <p className="text-xs text-slate-500 mt-1">Direct OEM parts with full replacement warranty.</p>
+                <h4 className="text-sm font-bold text-slate-900">100% Genuine OEM Spares</h4>
+                <p className="text-xs text-slate-500 mt-1">Direct OEM components with full operational replacement warranty.</p>
               </div>
             </div>
           </div>
@@ -257,8 +255,8 @@ export default function ServicesPage() {
         <div className="container-custom">
           <SectionTitle
             badge="Execution Process"
-            title="Streamlined Service Delivery Workflow"
-            description="Our structured 4-step engineering protocol guarantees precise calibration and fast turnaround times."
+            title="Streamlined 4-Step Service Delivery Workflow"
+            description="Our structured engineering protocol guarantees precise calibration, NABL compliance, and rapid repair turnaround times."
             center
           />
 

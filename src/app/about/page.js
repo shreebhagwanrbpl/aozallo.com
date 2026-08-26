@@ -19,50 +19,50 @@ import {
 } from "lucide-react";
 
 export const metadata = {
-  title: "About Us | Leading Biomedical & Diagnostic Equipment Partner | Raj Biosis",
+  title: "About Us | Leading Biomedical Equipment & Diagnostic Solutions Partner | Raj Biosis",
   description:
-    "Learn about Raj Biosis - India's trusted supplier, dealer & exporter of high precision biomedical devices, ICU monitors, pathology analyzers, and laboratory equipment.",
+    "Discover Raj Biosis - India's premier supplier, authorized dealer & exporter of high-precision biomedical devices, ICU monitors, pathology analyzers, and hospital maintenance AMC services.",
   alternates: {
     canonical: "https://aozallo.com/about",
   },
   openGraph: {
-    title: "About Raj Biosis | Biomedical & Diagnostic Solutions",
-    description: "Empowering healthcare institutions across India with cutting-edge medical technologies.",
+    title: "About Raj Biosis | Biomedical Engineering & Diagnostic Machinery",
+    description: "Empowering healthcare facilities, diagnostic centers, and hospital ICUs across India with cutting-edge medical technologies.",
     url: "https://aozallo.com/about",
   },
 };
 
 export default function AboutPage() {
   const stats = [
-    { number: "15+", label: "Years of Excellence", icon: Award },
-    { number: "5,000+", label: "Hospitals & Labs Served", icon: Building2 },
-    { number: "100%", label: "Genuine OEM Hardware", icon: ShieldCheck },
-    { number: "24/7", label: "Technical AMC Hotline", icon: Clock },
+    { number: "15+", label: "Years of Industry Leadership", icon: Award },
+    { number: "5,000+", label: "Hospitals & Laboratories Served", icon: Building2 },
+    { number: "100%", label: "Genuine OEM Certified Hardware", icon: ShieldCheck },
+    { number: "24/7", label: "Emergency AMC Technical Helpline", icon: Clock },
   ];
 
   const pillars = [
     {
       icon: Microscope,
       title: "Precision Diagnostics",
-      desc: "Supplying NABL-traceable, high-throughput pathology analyzers and clinical chemistry instruments engineered for zero diagnostic error.",
+      desc: "Supplying NABL-traceable, high-throughput pathology analyzers and clinical chemistry platforms engineered for zero-error diagnostic accuracy.",
       color: "from-emerald-500 to-teal-600",
     },
     {
       icon: Stethoscope,
-      title: "Critical Care Machinery",
-      desc: "Equipping hospital ICUs and emergency rooms with advanced multi-para patient monitors, ventilators, and resuscitation devices.",
+      title: "Critical Care Engineering",
+      desc: "Equipping hospital ICUs and emergency rooms with advanced multi-parameter patient monitors, mechanical ventilators, and resuscitation systems.",
       color: "from-blue-500 to-indigo-600",
     },
     {
       icon: Wrench,
-      title: "Full Engineering AMC Support",
-      desc: "Pan-India network of certified biomedical engineers offering installation, calibration, preventive maintenance, and rapid repair.",
+      title: "Pan-India AMC & CMC Support",
+      desc: "Dedicated team of certified biomedical engineers delivering turnkey installation, sensor calibration, preventive maintenance, and 24/7 repair.",
       color: "from-amber-500 to-orange-600",
     },
     {
       icon: Globe,
-      title: "International Export Supply",
-      desc: "Authorized exporter offering export-grade packaging, customs compliance, and direct B2B supply for international healthcare buyers.",
+      title: "Global B2B Medical Export",
+      desc: "Authorized exporter providing export-grade packaging, international customs compliance, and direct B2B supply for overseas healthcare buyers.",
       color: "from-purple-500 to-indigo-700",
     },
   ];
@@ -70,23 +70,23 @@ export default function AboutPage() {
   const milestones = [
     {
       year: "2010",
-      title: "Company Establishment",
-      desc: "Founded in Jaipur, Rajasthan as a specialized supplier of laboratory and medical diagnostic machinery.",
+      title: "Foundation & Local Distribution",
+      desc: "Established in Jaipur, Rajasthan as a specialized distributor of clinical laboratory equipment and pathology diagnostic machinery.",
     },
     {
       year: "2015",
-      title: "Pan-India Expansion",
-      desc: "Expanded distribution network and technical service centers across key medical markets in India.",
+      title: "Pan-India Network Expansion",
+      desc: "Expanded direct sales channels and technical engineering centers across key healthcare centers throughout northern and central India.",
     },
     {
       year: "2020",
-      title: "ICU & Critical Care Division",
-      desc: "Launched dedicated ICU equipment supply and 24/7 emergency maintenance contracts.",
+      title: "Critical Care & ICU Division",
+      desc: "Launched dedicated ICU equipment supply, multi-para monitor integration, and 24/7 emergency maintenance contracts for hospital ICUs.",
     },
     {
       year: "2024+",
-      title: "ISO 9001:2015 & Global Export",
-      desc: "Achieved international quality certification and expanded international export operations.",
+      title: "ISO 9001:2015 & Global Export Operations",
+      desc: "Achieved international ISO quality management certification and scaled export supply channels for global B2B healthcare partners.",
     },
   ];
 
@@ -94,8 +94,8 @@ export default function AboutPage() {
     <>
       {/* Banner */}
       <PageBanner
-        title="About Raj Biosis"
-        subtitle="Empowering hospitals, pathology laboratories, and diagnostic centers across India with world-class biomedical technology."
+        title="About Rajbiosis Private Limited"
+        subtitle="Empowering hospitals, diagnostic laboratories, clinical testing facilities, and ICU centers across India with world-class biomedical machinery & engineering support."
       />
 
       {/* Main Company Intro Section */}
@@ -144,23 +144,23 @@ export default function AboutPage() {
             <div className="lg:col-span-6 space-y-6">
               <SectionTitle
                 badge="Who We Are"
-                title="Pioneering Medical Diagnostics & Biomedical Engineering in India"
-                description="Raj Biosis is a leading supplier, dealer, and authorized maintenance partner for high-precision diagnostic machinery, laboratory analyzers, and hospital ICU systems."
+                title="Pioneering Healthcare Machinery & Biomedical Engineering in India"
+                description="Raj Biosis is a leading supplier, authorized dealer, and maintenance partner for high-precision diagnostic analyzers, hospital ICU units, and laboratory machinery."
               />
 
               <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-                Founded with a commitment to healthcare excellence, <strong>Rajbiosis Private Limited</strong> delivers state-of-the-art diagnostic instruments engineered for speed, accuracy, and operational longevity. We serve private hospital networks, government health institutions, clinical testing centers, and pathology laboratories.
+                Founded with an unyielding commitment to healthcare quality, <strong>Rajbiosis Private Limited</strong> delivers state-of-the-art diagnostic instruments engineered for speed, high clinical precision, and long operational life. We serve top-tier private hospital networks, government healthcare institutions, clinical testing laboratories, and pathology centers nationwide.
               </p>
 
               <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-                Beyond equipment distribution, our in-house team of certified biomedical engineers provides end-to-end installation, NABL-traceable calibration, preventive maintenance contracts (AMC/CMC), and 24/7 technical assistance.
+                Beyond equipment supply, our certified biomedical engineering team delivers complete turnkey installation, NABL-traceable sensor calibration, structured Annual Maintenance Contracts (AMC/CMC), and a 24/7 technical hotline for zero diagnostic downtime.
               </p>
 
               {/* Feature Points */}
               <div className="grid sm:grid-cols-2 gap-3 pt-2">
                 <div className="flex items-center gap-3 text-xs sm:text-sm font-bold text-slate-800 bg-emerald-50/70 p-3.5 rounded-2xl border border-emerald-100">
                   <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
-                  <span>100% Genuine OEM Certified Hardware</span>
+                  <span>100% Genuine OEM Hardware & Spares</span>
                 </div>
                 <div className="flex items-center gap-3 text-xs sm:text-sm font-bold text-slate-800 bg-emerald-50/70 p-3.5 rounded-2xl border border-emerald-100">
                   <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
@@ -168,11 +168,11 @@ export default function AboutPage() {
                 </div>
                 <div className="flex items-center gap-3 text-xs sm:text-sm font-bold text-slate-800 bg-emerald-50/70 p-3.5 rounded-2xl border border-emerald-100">
                   <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
-                  <span>24/7 AMC & Repair Support</span>
+                  <span>24/7 Emergency AMC Support</span>
                 </div>
                 <div className="flex items-center gap-3 text-xs sm:text-sm font-bold text-slate-800 bg-emerald-50/70 p-3.5 rounded-2xl border border-emerald-100">
                   <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
-                  <span>International B2B Export Ready</span>
+                  <span>Global Medical Export Compliant</span>
                 </div>
               </div>
 
@@ -180,14 +180,14 @@ export default function AboutPage() {
               <div className="pt-4 flex flex-wrap items-center gap-4">
                 <Link href="/items">
                   <button className="inline-flex items-center gap-2.5 rounded-2xl bg-emerald-600 px-7 py-3.5 text-sm font-extrabold text-white hover:bg-emerald-700 transition shadow-xl shadow-emerald-600/25">
-                    <span>Explore Products</span>
+                    <span>Explore Full Catalog</span>
                     <ArrowRight size={18} />
                   </button>
                 </Link>
                 <Link href="/contact">
                   <button className="inline-flex items-center gap-2.5 rounded-2xl border-2 border-emerald-600/30 bg-white px-7 py-3.5 text-sm font-extrabold text-emerald-700 hover:bg-emerald-50 transition shadow-sm">
                     <PhoneCall size={18} />
-                    <span>Contact Our Specialists</span>
+                    <span>Speak with Product Experts</span>
                   </button>
                 </Link>
               </div>
@@ -220,9 +220,9 @@ export default function AboutPage() {
       <section className="py-20 bg-slate-50">
         <div className="container-custom">
           <SectionTitle
-            badge="Our Capabilities"
-            title="Comprehensive Solutions for Healthcare Facilities"
-            description="Engineered to meet the stringent demands of hospital ICUs, pathology laboratories, and diagnostic centers."
+            badge="Our Pillars"
+            title="End-to-End Solutions for Healthcare Facilities"
+            description="Built to meet the uncompromising standards of hospital ICUs, pathology laboratories, and diagnostic centers."
             center
           />
 
@@ -256,9 +256,9 @@ export default function AboutPage() {
       <section className="py-20 bg-white">
         <div className="container-custom">
           <SectionTitle
-            badge="Our Journey"
+            badge="Our Growth Journey"
             title="A History of Trust & Healthcare Innovation"
-            description="Key milestones that have shaped Raj Biosis into India's premier biomedical equipment provider."
+            description="Defining milestones that have established Raj Biosis as India's trusted biomedical equipment provider."
             center
           />
 
@@ -284,13 +284,13 @@ export default function AboutPage() {
         <div className="container-custom text-center space-y-6 max-w-3xl">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-1.5 text-xs font-bold text-white backdrop-blur-md">
             <Sparkles size={14} />
-            <span>Ready to Upgrade Your Hospital or Diagnostic Facility?</span>
+            <span>Ready to Upgrade Your Medical Facility?</span>
           </span>
           <h2 className="text-3xl sm:text-4xl font-black leading-tight">
-            Get an Itemized Quotation for Medical Equipment Today
+            Get an Fast Itemized Quotation for Medical Equipment Today
           </h2>
           <p className="text-emerald-100 text-sm sm:text-base leading-relaxed">
-            Speak directly with our diagnostic product specialists or call +91 9983123469 for instant pricing and technical availability.
+            Connect directly with our biomedical specialists or call +91 9983123469 for immediate pricing and technical availability.
           </p>
           <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
             <Link href="/contact">

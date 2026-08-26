@@ -454,7 +454,7 @@ function ContactPageContent({ city: propCity }) {
       {/* Hero Banner with District Focus */}
       <PageBanner
         title={`Contact Rajbiosis Private Limited - ${activeDistrict.name}`}
-        subtitle={`Central biomedical equipment sales, technical service, AMC contracts, and emergency ICU breakdown support across ${activeDistrict.name} & regional districts.`}
+        subtitle={`Central biomedical equipment sales, technical service, AMC contracts, and 24/7 emergency ICU breakdown support across ${activeDistrict.name} & regional medical hubs.`}
       />
 
       {/* Main Contact Content */}
@@ -469,17 +469,17 @@ function ContactPageContent({ city: propCity }) {
                 <div className="flex items-center gap-2 mb-2">
                   <span className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-emerald-800 bg-emerald-100/80 px-3 py-1 rounded-full">
                     <Radio size={14} className="animate-pulse text-emerald-600" />
-                    <span>Dynamic District Location active</span>
+                    <span>Dynamic Location Desk Active</span>
                   </span>
                 </div>
                 <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
-                  <span>Selected Location:</span>
+                  <span>Active District Desk:</span>
                   <span className="text-emerald-700 underline decoration-emerald-300 underline-offset-4">
                     {activeDistrict.name} ({activeDistrict.state})
                   </span>
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                  Central office address, map embed, and engineer hotlines dynamically adjust for every district.
+                  Central office address, map embed, and technical hotlines dynamically adjust for every district.
                 </p>
               </div>
 
