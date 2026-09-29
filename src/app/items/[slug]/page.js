@@ -7,7 +7,6 @@ import {
   SITE_URL,
 } from "@/lib/seo";
 import { getProductImage } from "@/lib/image-utils";
-
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const allProducts = await fetchFullCatalog();
@@ -106,7 +105,7 @@ export default async function Page({ params }) {
     },
     {
       q: `How can I request a price quotation for ${product?.title || "this product"}?`,
-      a: `Submit an online enquiry or call +91 9983123469 to receive an itemized official quotation including installation and warranty packages.`,
+      a: `Submit an online enquiry or submit an enquiry to receive an itemized official quotation including installation and warranty packages.`,
     },
   ];
   const faqSchema = generateFAQSchema(productFaqs);

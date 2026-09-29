@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useEffect, useMemo, useState, useCallback, memo, Profiler } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -17,7 +16,6 @@ import PageBanner from "@/components/PageBanner";
 import SectionTitle from "@/components/SectionTitle";
 // import CTASection from "@/components/CTASection";
 import ProductCard from "@/components/ProductCard";
-
 // 1. Memoized Product Link Component
 const ProductLink = memo(function ProductLink({ item, category, scrollToProduct }) {
   return (

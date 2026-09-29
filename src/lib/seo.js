@@ -5,7 +5,7 @@
 export const SITE_URL = "https://aozallo.com";
 export const SITE_NAME = "Raj Biosis Private Limited";
 export const OFFICIAL_PHONE = "+91-9983123469";
-export const OFFICIAL_EMAIL = "info@aozallo.com";
+export const OFFICIAL_EMAIL = "";
 
 /**
  * Generate Global Organization Schema (Entity SEO)

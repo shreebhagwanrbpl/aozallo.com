@@ -1,5 +1,4 @@
 "use client";
-
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import SectionTitle from "@/components/SectionTitle";
@@ -7,12 +6,9 @@ import ServiceCard from "@/components/ServiceCard";
 import HeroCarousel from "@/components/HeroCarousel";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
-import { doc, getDoc, addDoc, collection } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import toast from "react-hot-toast";
 import { generateFAQSchema } from "@/lib/seo";
 import { getProductImage } from "@/lib/image-utils";
-import { fetchFullCatalog } from "@/lib/data-fetcher";
 import {
   Microscope,
   FlaskConical,
@@ -34,7 +30,6 @@ import {
   BadgeCheck,
   Zap,
 } from "lucide-react";
-
 const stats = [
   {
     number: "5,000+",
@@ -125,7 +120,7 @@ const homeFaqs = [
   {
     question: "How fast can I receive an itemized quotation for equipment or AMC?",
     answer:
-      "Once you submit a quote request online or speak with our sales desk (+91 9983123469), our product specialists prepare and issue an itemized official quotation with GST details within 2 to 4 business hours.",
+      "Once you submit a quote request online or speak with our sales desk, our product specialists prepare and issue an itemized official quotation with GST details within 2 to 4 business hours.",
   },
 ];
 
@@ -238,10 +233,10 @@ export default function Home({ city: initialCity }) {
   const city = initialCity
     ? initialCity
     : district
-    ? district
+      ? district
         .replace(/-/g, " ")
         .replace(/\b\w/g, (c) => c.toUpperCase())
-    : "";
+      : "";
 
   const makeLink = (path) => {
     if (!district) return path;
@@ -252,9 +247,11 @@ export default function Home({ city: initialCity }) {
   useEffect(() => {
     const fetchHeroData = async () => {
       try {
-        const snap = await getDoc(
-          doc(db, "websites", "aozallocom", "pages", "home")
-        );
+        const snap = await (async () => {
+          const response = await fetch("/api/site-data?pageType=home", { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
+          const json = await response.json().catch(() => ({}));
+          return { exists: () => !!json.data, data: () => json.data || {} };
+        })();
         if (snap.exists()) {
           setHeroData(snap.data());
         }
@@ -271,27 +268,36 @@ export default function Home({ city: initialCity }) {
     const fetchData = async () => {
       try {
         // Services
-        const serviceSnap = await getDoc(
-          doc(db, "websites", "aozallocom", "pages", "services")
-        );
+        const serviceSnap = await (async () => {
+          const response = await fetch("/api/site-data?pageType=services", { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
+          const json = await response.json().catch(() => ({}));
+          return { exists: () => !!json.data, data: () => json.data || {} };
+        })();
         if (serviceSnap.exists()) {
           setServices(serviceSnap.data().services || []);
         }
 
         // Products
         let loadedProducts = [];
-        const productSnap = await getDoc(
-          doc(db, "websites", "aozallocom", "pages", "products")
-        );
+        const productSnap = await (async () => {
+          const response = await fetch("/api/site-data?pageType=products", { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
+          const json = await response.json().catch(() => ({}));
+          return { exists: () => !!json.data, data: () => json.data || {} };
+        })();
         if (productSnap.exists() && Array.isArray(productSnap.data().products)) {
           loadedProducts = productSnap.data().products;
         }
 
-        // If no products doc or empty, fallback to full catalog
+        // If no products doc or empty, fallback to full catalog via API
         if (loadedProducts.length === 0) {
-          const catalog = await fetchFullCatalog();
-          if (catalog && catalog.length > 0) {
-            loadedProducts = catalog;
+          try {
+            const res = await fetch("/api/products", { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
+            const json = await res.json().catch(() => ({}));
+            if (json.success && Array.isArray(json.products) && json.products.length > 0) {
+              loadedProducts = json.products;
+            }
+          } catch (e) {
+            console.error("Error fetching fallback products:", e);
           }
         }
 
@@ -323,14 +329,7 @@ export default function Home({ city: initialCity }) {
 
     try {
       setSubmitting(true);
-      await addDoc(
-        collection(db, "websitesQueries", "aozallocom", "homeB2BQueries"),
-        {
-          ...form,
-          city: city || "General",
-          createdAt: new Date(),
-        }
-      );
+      await fetch("/api/contact-query", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form }) });
       toast.success("Thank you! Your quotation request has been submitted.");
       setForm({ name: "", email: "", phone: "", requirement: "", company: "" });
     } catch (err) {
@@ -715,7 +714,7 @@ export default function Home({ city: initialCity }) {
                 <div className="px-7 pb-7 pt-2 flex items-center justify-between border-t border-slate-100">
                   <Link
                     href={makeLink(`/items/${product.slug}`)}
-                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white text-xs font-bold py-3 transition shadow-md"
+                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 hover:bg-emerald-600 !text-white text-xs font-bold py-3 transition shadow-md"
                   >
                     View Product Details
                     <ArrowRight size={14} />
@@ -889,9 +888,8 @@ export default function Home({ city: initialCity }) {
                     <span>{faq.question}</span>
                     <ChevronDown
                       size={20}
-                      className={`text-slate-400 transition-transform ${
-                        isOpen ? "rotate-180 text-emerald-600" : ""
-                      }`}
+                      className={`text-slate-400 transition-transform ${isOpen ? "rotate-180 text-emerald-600" : ""
+                        }`}
                     />
                   </button>
                   <AnimatePresence>

@@ -1,5 +1,4 @@
 import ContactPage from "@/app/contact/page";
-
 export default async function Page({ params }) {
 
   const { district = "jaipur" } = await params;

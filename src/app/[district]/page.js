@@ -1,6 +1,5 @@
 import Home from "@/app/page";
 import { generateLocalBusinessSchema, generateBreadcrumbSchema, generateFAQSchema, SITE_URL } from "@/lib/seo";
-
 export async function generateMetadata({ params }) {
   const { district } = await params;
   const slug = district || "jaipur";

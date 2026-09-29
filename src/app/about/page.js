@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import PageBanner from "@/components/PageBanner";
+import DynamicPhoneLink from "@/components/DynamicPhoneLink";
 import SectionTitle from "@/components/SectionTitle";
 import {
   ShieldCheck,
@@ -17,7 +18,6 @@ import {
   Clock,
   Sparkles,
 } from "lucide-react";
-
 export const metadata = {
   title: "About Us | Leading Biomedical Equipment & Diagnostic Solutions Partner | Raj Biosis",
   description:
@@ -290,7 +290,7 @@ export default function AboutPage() {
             Get an Fast Itemized Quotation for Medical Equipment Today
           </h2>
           <p className="text-emerald-100 text-sm sm:text-base leading-relaxed">
-            Connect directly with our biomedical specialists or call +91 9983123469 for immediate pricing and technical availability.
+            Connect directly with our biomedical specialists for immediate pricing and technical availability.
           </p>
           <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
             <Link href="/contact">
@@ -298,11 +298,11 @@ export default function AboutPage() {
                 Request Fast Quotation
               </button>
             </Link>
-            <a href="tel:+919983123469">
+            <DynamicPhoneLink>
               <button className="rounded-2xl bg-white px-8 py-4 text-sm font-extrabold text-emerald-800 hover:bg-emerald-50 transition shadow-xl">
-                Call +91 9983123469
+                Call
               </button>
-            </a>
+            </DynamicPhoneLink>
           </div>
         </div>
       </section>

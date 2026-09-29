@@ -1,9 +1,9 @@
+import CatalogRealtimeSync from "@/components/CatalogRealtimeSync";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Toaster } from "react-hot-toast";
 import { generateOrganizationSchema, generateWebSiteSchema } from "@/lib/seo";
-
 export const metadata = {
   metadataBase: new URL("https://aozallo.com"),
 
@@ -103,6 +103,7 @@ export default function RootLayout({ children }) {
         </main>
 
         <Footer />
+      <CatalogRealtimeSync />
       </body>
     </html>
   );

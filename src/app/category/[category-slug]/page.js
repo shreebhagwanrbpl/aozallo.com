@@ -10,7 +10,6 @@ import {
 } from "@/lib/seo";
 import Link from "next/link";
 import { ArrowRight, ShieldCheck, Microscope, Award } from "lucide-react";
-
 export async function generateMetadata({ params }) {
   const { "category-slug": categorySlug } = await params;
   const categoryName = categorySlug

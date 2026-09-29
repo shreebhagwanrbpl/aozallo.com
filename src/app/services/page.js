@@ -1,9 +1,9 @@
 "use client";
-
 import { useEffect, useState } from "react";
-import { doc, getDoc, addDoc, collection } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { usePathname } from "next/navigation";
 import PageBanner from "@/components/PageBanner";
+import { useContactInfo } from "@/lib/useContactInfo";
+import { phoneHref, whatsappHref } from "@/lib/contact-utils";
 import SectionTitle from "@/components/SectionTitle";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
@@ -23,24 +23,27 @@ import {
   X,
   FileCheck,
   Building2,
+  Calendar,
+  MessageSquare,
+  Sparkles,
 } from "lucide-react";
 
 const defaultServicesList = [
   {
     id: 1,
-    title: "Biomedical Installation & Commissioning",
-    subtitle: "Turnkey Engineer Setup & Calibration",
-    desc: "Complete physical mounting, high-precision electrical safety testing, network integration, and diagnostic sensor calibration for ICU monitors, ventilators, ultrasound units, and pathology analyzers.",
+    title: "Clinical Analyzer Calibration & Comprehensive AMC Services",
+    subtitle: "Turnkey Engineer Setup & NABL Calibration",
+    desc: "Certified calibration services with documented traceability reports, quarterly preventive maintenance audits, genuine OEM spare replacements, and complete AMC solutions tailored for high-throughput diagnostic facilities.",
     badge: "NABL Calibrated",
-    highlights: ["Pre-commissioning Safety Audit", "Electrical Isolation & Surge Validation", "Clinical Operational Orientation"],
+    highlights: ["Pre-commissioning Safety Audit", "NABL Traceable Calibration Certificates", "Quarterly Preventive Maintenance"],
     icon: Microscope,
     color: "from-emerald-500 to-teal-700",
   },
   {
     id: 2,
-    title: "Annual & Comprehensive Maintenance (AMC & CMC)",
+    title: "Annual & Comprehensive Maintenance Contracts (AMC / CMC)",
     subtitle: "24/7 Priority Emergency Breakdown Response",
-    desc: "Scheduled preventive maintenance, zero-downtime hardware inspection, 100% genuine OEM spare replacements, and round-the-clock emergency biomedical engineer dispatch.",
+    desc: "Scheduled preventive maintenance, zero-downtime hardware inspection, 100% genuine OEM spare replacements, and round-the-clock emergency biomedical engineer dispatch across India.",
     badge: "Zero Downtime SLA",
     highlights: ["Quarterly Preventive Audits", "Genuine OEM Spare Replacements", "4-Hour Emergency Dispatch SLA"],
     icon: ShieldCheck,
@@ -48,11 +51,11 @@ const defaultServicesList = [
   },
   {
     id: 3,
-    title: "Laboratory Diagnostic Equipment Calibration",
-    subtitle: "ISO 9001:2015 & NABL Audit Compliance",
-    desc: "Precision optical, electronic, and fluidic calibration of clinical biochemistry analyzers, centrifuges, spectrophotometers, and pathology equipment with certified documentation.",
-    badge: "Audit-Ready Reports",
-    highlights: ["NABL Traceable Calibration Certificates", "Precision Sensor & Lamp Realignment", "Quality Control Verification"],
+    title: "Laboratory Modernization, Expansion & Automation Planning",
+    subtitle: "High-Throughput Clinical Architecture",
+    desc: "Upgrading legacy diagnostic departments with automated high-throughput chemistry, hematology, and immunology systems optimized for maximum specimen turnaround speed and error-free operation.",
+    badge: "Workflow Optimization",
+    highlights: ["Department Layout Design", "Automated Specimen Routing", "LIS / HIS Software Integration"],
     icon: FlaskConical,
     color: "from-teal-600 to-cyan-700",
   },
@@ -68,21 +71,21 @@ const defaultServicesList = [
   },
   {
     id: 5,
-    title: "Technician & Clinical Staff Operational Training",
-    subtitle: "User Expertise & Safety Compliance",
-    desc: "Comprehensive hands-on training for doctors, laboratory technicians, and nursing staff to ensure flawless test execution, error prevention, and safe device operation.",
-    badge: "Certified Modules",
-    highlights: ["Clinical Workflow Optimization", "Rapid On-Site Troubleshooting", "Device Safety Protocol Training"],
+    title: "Analyzer Implementation & Technical Application Support",
+    subtitle: "Specialist Assistance & Operator Training",
+    desc: "On-demand application specialist assistance, protocol optimization, new assay configuration, and operator refresher workshops for clinical laboratory teams and hospital staff.",
+    badge: "Application Specialist",
+    highlights: ["Clinical Protocol Optimization", "Operator Hands-on Training", "Rapid Troubleshooting Support"],
     icon: Stethoscope,
     color: "from-cyan-600 to-teal-800",
   },
   {
     id: 6,
-    title: "Hardware Refurbishment & Sensor Recalibration",
-    subtitle: "Device Life Extension & Component Repair",
-    desc: "Component-level electronic repair, firmware upgrades, optical sensor realignment, and factory-standard reconditioning for laboratory and ICU machinery.",
-    badge: "Cost Optimization",
-    highlights: ["Board-Level Electronics Repair", "Optical & Fluidic Sensor Upgrades", "Extended Warranty Coverage"],
+    title: "Cold-Chain Reagent Logistics & Standardized Multi-Level Controls",
+    subtitle: "Temperature-Controlled Quality Assurance",
+    desc: "Temperature-monitored distribution of multi-analyte controls, calibrators, and diagnostic kits ensuring maximum stability, shelf-life, and precise diagnostic reproducibility.",
+    badge: "Cold-Chain Verified",
+    highlights: ["2°C to 8°C Monitored Logistics", "Standardized Multi-Level Controls", "Batch Consistency Guarantee"],
     icon: Wrench,
     color: "from-green-500 to-emerald-700",
   },
@@ -111,17 +114,52 @@ const serviceSteps = [
   },
 ];
 
-export default function ServicesPage() {
+const defaultIcons = [Microscope, ShieldCheck, FlaskConical, Activity, Stethoscope, Wrench];
+const defaultColors = [
+  "from-emerald-500 to-teal-700",
+  "from-green-600 to-emerald-800",
+  "from-teal-600 to-cyan-700",
+  "from-emerald-600 to-green-700",
+  "from-cyan-600 to-teal-800",
+  "from-green-500 to-emerald-700",
+];
+const defaultBadges = [
+  "NABL Calibrated",
+  "Zero Downtime SLA",
+  "Workflow Optimization",
+  "ICU Mission Critical",
+  "Application Specialist",
+  "Cold-Chain Verified",
+];
+
+export default function ServicesPage({ city: initialCity }) {
+  const pathname = usePathname();
+  const { primaryPhone, primaryPhoneHref, primaryWhatsAppHref } = useContactInfo();
+
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedService, setSelectedService] = useState(null);
+
+  const pathParts = pathname ? pathname.split("/").filter(Boolean) : [];
+  const staticRoutes = ["about", "services", "items", "contact", "products"];
+  const district =
+    pathParts.length > 0 && !staticRoutes.includes(pathParts[0])
+      ? pathParts[0]
+      : "";
+  const city = initialCity
+    ? initialCity
+    : district
+    ? district
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase())
+    : "";
 
   // Form State for Service Request Modal
   const [form, setForm] = useState({
     name: "",
     email: "",
     phone: "",
-    serviceName: "",
+    facilityName: "",
     message: "",
   });
   const [submitting, setSubmitting] = useState(false);
@@ -129,11 +167,13 @@ export default function ServicesPage() {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const snap = await getDoc(
-          doc(db, "websites", "aozallocom", "pages", "services")
-        );
-        if (snap.exists() && snap.data().services?.length > 0) {
-          setServices(snap.data().services);
+        const response = await fetch("/api/site-data?pageType=services", {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache" },
+        });
+        const json = await response.json().catch(() => ({}));
+        if (json?.data?.services && Array.isArray(json.data.services) && json.data.services.length > 0) {
+          setServices(json.data.services);
         } else {
           setServices(defaultServicesList);
         }
@@ -155,24 +195,38 @@ export default function ServicesPage() {
 
     try {
       setSubmitting(true);
-      await addDoc(
-        collection(db, "websitesQueries", "aozallocom", "serviceBookings"),
-        {
-          ...form,
-          serviceTitle: selectedService?.title || form.serviceName || "General Service Request",
-          createdAt: new Date(),
+      const serviceTitle = selectedService?.title || "Biomedical Service";
+      await fetch("/api/contact-query", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          company: form.facilityName,
+          requirement: `Service Booking Request: ${serviceTitle}. Details: ${form.message || "No extra notes"}${city ? ` | Location: ${city}` : ""}`,
+          subject: `Service Request: ${serviceTitle}`,
+        }),
+      }).then(async (res) => {
+        const result = await res.json().catch(() => ({}));
+        if (!res.ok || result.success === false) {
+          throw new Error(result.error || "Submission failed");
         }
-      );
-      toast.success("Your service request has been submitted successfully!");
-      setForm({ name: "", email: "", phone: "", serviceName: "", message: "" });
+        return result;
+      });
+
+      toast.success("Your service request has been submitted successfully! Our engineering team will contact you shortly.");
+      setForm({ name: "", email: "", phone: "", facilityName: "", message: "" });
       setSelectedService(null);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to submit request. Please call +91 9983123469");
+      toast.error("Failed to submit service request. Please try again or call our hotline.");
     } finally {
       setSubmitting(false);
     }
   };
+
+  const displayServices = services.length > 0 ? services : defaultServicesList;
 
   const serviceSchema = {
     "@context": "https://schema.org",
@@ -183,7 +237,7 @@ export default function ServicesPage() {
       name: "Raj Biosis",
       url: "https://aozallo.com",
     },
-    areaServed: "IN",
+    areaServed: city || "India",
     description:
       "Professional biomedical calibration, equipment installation, technical assistance, and Annual Maintenance Contracts (AMC) across India.",
   };
@@ -199,16 +253,20 @@ export default function ServicesPage() {
 
       {/* Hero Banner */}
       <PageBanner
-        title="Biomedical Engineering Services & Technical AMC"
-        subtitle="Delivering ISO 9001:2015 certified calibration, turnkey equipment installation, quarterly preventive maintenance, and 24/7 emergency hotline support for hospitals & laboratories nationwide."
+        title={city ? `Biomedical Engineering & AMC Services in ${city}` : "Biomedical Engineering Services & Technical AMC"}
+        subtitle={
+          city
+            ? `Certified calibration, hospital equipment installation, quarterly preventive maintenance, and 24/7 emergency ICU hotline support across ${city}.`
+            : "Delivering ISO 9001:2015 certified calibration, turnkey equipment installation, quarterly preventive maintenance, and 24/7 emergency hotline support for hospitals & laboratories nationwide."
+        }
       />
 
       {/* Quality Standards & SLA Banner */}
-      <section className="py-16 bg-white border-y border-slate-200">
+      <section className="py-12 sm:py-16 bg-white border-y border-slate-200">
         <div className="container-custom">
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="flex items-start gap-4">
-              <div className="h-12 w-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+              <div className="h-12 w-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 shadow-sm">
                 <Award size={24} />
               </div>
               <div>
@@ -218,7 +276,7 @@ export default function ServicesPage() {
             </div>
 
             <div className="flex items-start gap-4">
-              <div className="h-12 w-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+              <div className="h-12 w-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 shadow-sm">
                 <Clock3 size={24} />
               </div>
               <div>
@@ -228,7 +286,7 @@ export default function ServicesPage() {
             </div>
 
             <div className="flex items-start gap-4">
-              <div className="h-12 w-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+              <div className="h-12 w-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 shadow-sm">
                 <Zap size={24} />
               </div>
               <div>
@@ -238,7 +296,7 @@ export default function ServicesPage() {
             </div>
 
             <div className="flex items-start gap-4">
-              <div className="h-12 w-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+              <div className="h-12 w-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 shadow-sm">
                 <ShieldCheck size={24} />
               </div>
               <div>
@@ -247,6 +305,120 @@ export default function ServicesPage() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ============================================================
+          MAIN SERVICES CATALOG GRID
+      ============================================================ */}
+      <section className="py-16 sm:py-24 bg-slate-50">
+        <div className="container-custom">
+          <SectionTitle
+            badge="Engineering Solutions"
+            title={city ? `Our Biomedical & Technical Services in ${city}` : "Specialized Biomedical & Engineering Services"}
+            description="From turnkey analyzer installation to NABL-traceable calibration and 24/7 AMC coverage, our certified biomedical engineers support healthcare institutions at every step."
+            center
+          />
+
+          {loading ? (
+            <div className="mt-14 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="bg-white rounded-3xl p-8 border border-slate-200 animate-pulse space-y-4">
+                  <div className="h-14 w-14 rounded-2xl bg-slate-200" />
+                  <div className="h-6 w-3/4 rounded-lg bg-slate-200" />
+                  <div className="h-4 w-full rounded bg-slate-200" />
+                  <div className="h-4 w-5/6 rounded bg-slate-200" />
+                  <div className="h-10 w-full rounded-xl bg-slate-200 mt-6" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-14 grid gap-8 md:grid-cols-2 lg:grid-cols-3 items-stretch">
+              {displayServices.map((service, index) => {
+                const Icon = defaultIcons[index % defaultIcons.length];
+                const color = defaultColors[index % defaultColors.length];
+                const badge = service.badge || defaultBadges[index % defaultBadges.length];
+                const highlights = service.highlights || [
+                  "Certified Biomedical Engineers",
+                  "NABL Traceable Documentation",
+                  "Genuine Spare Parts Assurance",
+                ];
+
+                return (
+                  <motion.div
+                    key={service.id || index}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1, duration: 0.5 }}
+                    viewport={{ once: true }}
+                    className="group relative rounded-3xl bg-white p-8 border border-emerald-100/80 shadow-lg shadow-slate-100 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:border-emerald-300 flex flex-col justify-between"
+                  >
+                    <div>
+                      {/* Top Header with Icon & Badge */}
+                      <div className="flex items-start justify-between gap-4">
+                        <div
+                          className={`h-14 w-14 rounded-2xl bg-gradient-to-br ${color} text-white flex items-center justify-center shadow-lg shadow-emerald-600/20 group-hover:scale-110 transition shrink-0`}
+                        >
+                          <Icon size={26} />
+                        </div>
+                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
+                          {badge}
+                        </span>
+                      </div>
+
+                      {/* Title */}
+                      <h3 className="mt-6 text-xl font-black text-slate-900 group-hover:text-emerald-700 transition leading-snug">
+                        {service.title}
+                      </h3>
+
+                      {/* Subtitle if available */}
+                      {service.subtitle && (
+                        <p className="text-xs font-bold text-emerald-600 mt-1">
+                          {service.subtitle}
+                        </p>
+                      )}
+
+                      {/* Description */}
+                      <p className="mt-3 text-xs sm:text-sm leading-relaxed text-slate-600">
+                        {service.desc || service.description}
+                      </p>
+
+                      {/* Highlights */}
+                      <div className="mt-6 pt-4 border-t border-slate-100 space-y-2">
+                        {highlights.map((item, hIdx) => (
+                          <div key={hIdx} className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+                            <CheckCircle2 size={14} className="text-emerald-600 shrink-0" />
+                            <span>{item}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Bottom Action Area */}
+                    <div className="mt-8 pt-4 border-t border-slate-100 flex items-center gap-3">
+                      <button
+                        onClick={() => setSelectedService(service)}
+                        className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-3 px-4 shadow-md shadow-emerald-600/20 transition cursor-pointer"
+                      >
+                        <span>Book Service / Quote</span>
+                        <ArrowRight size={14} />
+                      </button>
+
+                      {primaryPhoneHref && (
+                        <a
+                          href={primaryPhoneHref}
+                          title={`Call for ${service.title}`}
+                          className="h-10 w-10 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 flex items-center justify-center transition shrink-0"
+                        >
+                          <PhoneCall size={16} />
+                        </a>
+                      )}
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 
@@ -301,14 +473,28 @@ export default function ServicesPage() {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4">
-            <a
-              href="tel:+919983123469"
-              className="inline-flex items-center gap-3 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black px-7 py-4 rounded-2xl text-sm shadow-xl transition hover:scale-105"
-            >
-              <PhoneCall size={20} />
-              <span>Call Helpline: +91 9983123469</span>
-            </a>
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            {primaryPhone && (
+              <a
+                href={primaryPhoneHref || "#"}
+                className="inline-flex items-center gap-3 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black px-7 py-4 rounded-2xl text-sm shadow-xl transition hover:scale-105"
+              >
+                <PhoneCall size={20} />
+                <span>Call Helpline: {primaryPhone}</span>
+              </a>
+            )}
+
+            {primaryWhatsAppHref && (
+              <a
+                href={`${primaryWhatsAppHref}?text=Hello,%20I%20need%20biomedical%20equipment%20service/AMC%20support.`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2.5 bg-slate-900 border border-slate-700 hover:border-emerald-500 text-white font-bold px-6 py-4 rounded-2xl text-sm transition hover:bg-slate-800"
+              >
+                <MessageSquare size={18} className="text-green-400" />
+                <span>WhatsApp Support</span>
+              </a>
+            )}
           </div>
         </div>
       </section>
@@ -325,7 +511,7 @@ export default function ServicesPage() {
             >
               <button
                 onClick={() => setSelectedService(null)}
-                className="absolute top-5 right-5 h-9 w-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition"
+                className="absolute top-5 right-5 h-9 w-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition cursor-pointer"
               >
                 <X size={20} />
               </button>
@@ -336,7 +522,7 @@ export default function ServicesPage() {
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-slate-900">Book Technical Service</h3>
-                  <p className="text-xs text-slate-500">{selectedService.title}</p>
+                  <p className="text-xs text-emerald-700 font-semibold line-clamp-1">{selectedService.title}</p>
                 </div>
               </div>
 
@@ -349,7 +535,7 @@ export default function ServicesPage() {
                     placeholder="Enter full name"
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs outline-none focus:border-emerald-500 focus:bg-white"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs outline-none focus:border-emerald-500 focus:bg-white transition"
                   />
                 </div>
 
@@ -360,8 +546,19 @@ export default function ServicesPage() {
                     required
                     placeholder="10-digit phone number"
                     value={form.phone}
-                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs outline-none focus:border-emerald-500 focus:bg-white"
+                    onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, "") })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs outline-none focus:border-emerald-500 focus:bg-white transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Hospital / Laboratory Name</label>
+                  <input
+                    type="text"
+                    placeholder="Hospital, Clinic or Diagnostic Center"
+                    value={form.facilityName}
+                    onChange={(e) => setForm({ ...form, facilityName: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs outline-none focus:border-emerald-500 focus:bg-white transition"
                   />
                 </div>
 
@@ -372,27 +569,27 @@ export default function ServicesPage() {
                     placeholder="Email address"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs outline-none focus:border-emerald-500 focus:bg-white"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs outline-none focus:border-emerald-500 focus:bg-white transition"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Service Details / Device Info</label>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Service Details / Equipment Notes</label>
                   <textarea
                     rows={3}
-                    placeholder="Mention equipment brand, model, or calibration requirements..."
+                    placeholder="Mention equipment brand, model number, or specific calibration requirements..."
                     value={form.message}
                     onChange={(e) => setForm({ ...form, message: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs outline-none focus:border-emerald-500 focus:bg-white resize-none"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs outline-none focus:border-emerald-500 focus:bg-white resize-none transition"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-3.5 rounded-xl transition shadow-lg shadow-emerald-600/20"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-3.5 rounded-xl transition shadow-lg shadow-emerald-600/20 cursor-pointer"
                 >
-                  {submitting ? "Submitting Booking..." : "Submit Service Request"}
+                  {submitting ? "Submitting Booking Request..." : "Submit Service Request"}
                 </button>
               </form>
             </motion.div>

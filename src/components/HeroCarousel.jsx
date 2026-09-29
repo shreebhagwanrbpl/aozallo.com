@@ -1,10 +1,8 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, ShieldCheck, Sparkles, Activity, Award, ArrowRight } from "lucide-react";
 import Link from "next/link";
-
 const slides = [
   {
     id: 1,
@@ -55,6 +53,14 @@ const slides = [
 export default function HeroCarousel({ makeLink }) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
+  const [heroData, setHeroData] = useState({});
+
+  useEffect(() => {
+    fetch("/api/site-data?pageType=home", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((json) => { if (json?.data) setHeroData(json.data); })
+      .catch((error) => console.error("Hero data load failed:", error));
+  }, []);
 
   useEffect(() => {
     if (!isAutoPlay) return;
@@ -93,7 +99,7 @@ export default function HeroCarousel({ makeLink }) {
           >
             <img
               src={slide.image}
-              alt={slide.title}
+              alt={heroData.title || ""}
               onError={(e) => {
                 e.currentTarget.src = slide.fallbackImage;
               }}
@@ -109,11 +115,11 @@ export default function HeroCarousel({ makeLink }) {
         <div className="absolute top-5 left-5 right-5 flex justify-between items-center z-10">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600/90 backdrop-blur-md px-3.5 py-1.5 text-xs font-bold text-white shadow-lg border border-emerald-400/40">
             <Sparkles size={14} className="animate-spin-slow text-emerald-200" />
-            {slide.tag}
+            {heroData.badge || ""}
           </span>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 backdrop-blur-md px-3.5 py-1.5 text-xs font-bold text-slate-800 shadow-lg border border-white/50">
             <ShieldCheck size={14} className="text-emerald-600" />
-            {slide.badge}
+            {heroData.badge || ""}
           </span>
         </div>
 
@@ -130,28 +136,28 @@ export default function HeroCarousel({ makeLink }) {
             >
               <p className="text-emerald-300 font-semibold text-xs uppercase tracking-wider flex items-center gap-2">
                 <Activity size={14} className="text-emerald-400" />
-                {slide.subtitle}
+                {heroData.subtitle || ""}
               </p>
               <h3 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight drop-shadow-md">
-                {slide.title}
+                {heroData.title || ""}
               </h3>
               <p className="text-sm text-slate-200 line-clamp-2 leading-relaxed opacity-90">
-                {slide.description}
+                {heroData.description || ""}
               </p>
               
               <div className="pt-2 flex items-center gap-3">
-                {makeLink && (
+                {makeLink && heroData.button1Text && (
                   <Link href={makeLink("/items")}>
                     <button className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 transition shadow-lg hover:shadow-emerald-500/30">
-                      View Equipment Details
+                      {heroData.button1Text}
                       <ArrowRight size={14} />
                     </button>
                   </Link>
                 )}
-                {makeLink && (
+                {makeLink && heroData.button2Text && (
                   <Link href={makeLink("/contact")}>
                     <button className="inline-flex items-center gap-2 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-md text-white text-xs sm:text-sm font-semibold px-4 py-2.5 transition border border-white/30">
-                      Inquire Now
+                      {heroData.button2Text}
                     </button>
                   </Link>
                 )}

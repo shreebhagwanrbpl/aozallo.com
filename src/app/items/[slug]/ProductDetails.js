@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState, useRef } from "react";
 import toast from "react-hot-toast";
 import { usePathname } from "next/navigation";
@@ -11,9 +10,7 @@ import {
   FaInstagram,
   FaLink,
 } from "react-icons/fa";
-import { addDoc, collection } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { fetchFullCatalog } from "@/lib/data-fetcher";
+import { useContactInfo } from "@/lib/useContactInfo";
 import ProductBrochure from "@/components/ProductBrochure";
 import {
   Download,
@@ -31,8 +28,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { getProductImage } from "@/lib/image-utils";
-
 export default function ProductDetails({ slug, product: initialProduct }) {
+    const { primaryPhone, primaryPhoneHref, primaryWhatsAppHref } = useContactInfo();
+
   const [product, setProduct] = useState(initialProduct || null);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [selectedImage, setSelectedImage] = useState(() => {
@@ -71,7 +69,9 @@ export default function ProductDetails({ slug, product: initialProduct }) {
     const loadProduct = async () => {
       try {
         setLoading(true);
-        const fullCatalog = await fetchFullCatalog();
+        const res = await fetch("/api/products", { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
+        const json = await res.json().catch(() => ({}));
+        const fullCatalog = (json.success && Array.isArray(json.products)) ? json.products : [];
         const found = fullCatalog.find(
           (p) =>
             p.slug === slug ||
@@ -176,21 +176,26 @@ export default function ProductDetails({ slug, product: initialProduct }) {
 
     try {
       setSubmitting(true);
-      await addDoc(
-        collection(db, "websitesQueries", "aozallocom", "productQueries"),
-        {
+      await fetch("/api/product-query", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           ...form,
-          productTitle: product.title,
-          productSlug: slug,
-          city: cityName,
-          createdAt: new Date(),
-        }
-      );
+          productName: product?.title || "",
+          productSlug: product?.slug || "",
+          brand: product?.brand || "",
+          model: product?.model || "",
+        }),
+      }).then(async (response) => {
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || result.success === false) throw new Error(result.error || "Submission failed");
+        return result;
+      });
       toast.success("Quotation request submitted! Our sales team will call you shortly.");
       setForm({ name: "", email: "", phone: "" });
     } catch (err) {
       console.error(err);
-      toast.error("Failed to submit request. Please call +91 9983123469");
+      toast.error("Failed to submit request.");
     } finally {
       setSubmitting(false);
     }
@@ -203,7 +208,7 @@ export default function ProductDetails({ slug, product: initialProduct }) {
     },
     {
       q: `What is the price of ${product.title} in ${cityName}?`,
-      a: `Pricing depends on specifications, warranty package, and optional accessories. Submit a fast quote request or call +91 9983123469 for an itemized quotation.`,
+      a: `Pricing depends on specifications, warranty package, and optional accessories. Submit a fast quote request or submit the enquiry form for an itemized quotation.`,
     },
     {
       q: `Are you an authorized supplier of ${product.title}?`,
@@ -342,14 +347,14 @@ export default function ProductDetails({ slug, product: initialProduct }) {
 
                 <div className="grid sm:grid-cols-2 gap-3">
                   <a
-                    href="tel:+919983123469"
+                    href={primaryPhoneHref || "#"}
                     className="inline-flex items-center justify-center gap-2 border-2 border-emerald-600 bg-emerald-50 text-emerald-800 font-bold px-5 py-3 rounded-xl hover:bg-emerald-100 transition text-xs sm:text-sm"
                   >
                     <PhoneCall size={16} className="text-emerald-600" />
-                    <span>Call +91 9983123469</span>
+                    <span>{primaryPhone}</span>
                   </a>
                   <a
-                    href={`https://wa.me/919983123469?text=Hello,%20I%20am%20interested%20in%20${encodeURIComponent(product.title)}`}
+                    href={`${primaryWhatsAppHref || ""}?text=Hello,%20I%20am%20interested%20in%20${encodeURIComponent(product.title)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center gap-2 border-2 border-green-600 bg-green-50 text-green-800 font-bold px-5 py-3 rounded-xl hover:bg-green-100 transition text-xs sm:text-sm"

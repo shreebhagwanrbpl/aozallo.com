@@ -1,29 +1,20 @@
-import { fetchFullCatalog as fetchFullCatalogRaw } from "./data-fetcher";
-import { cache } from "react";
+import {
+  fetchFullCatalog as fetchFullCatalogRaw,
+  fetchCategoriesTree as fetchCategoriesTreeRaw,
+  fetchHomeData,
+  fetchContactData,
+  fetchServicesData,
+  fetchDistrictData,
+  fetchDistricts,
+  fetchSitePage,
+} from "./data-fetcher";
 
-// Global in-memory cache for the server process to bypass Next.js 2MB unstable_cache limit
-let cachedCatalog = null;
-let cachedCatalogTimestamp = 0;
-const CACHE_TTL = 3600 * 1000; // 1 hour in milliseconds
+export const dynamic = "force-dynamic";
 
-async function getCachedCatalog() {
-  const now = Date.now();
-  if (cachedCatalog && (now - cachedCatalogTimestamp) < CACHE_TTL) {
-    console.log(`[data-fetcher-server] Serving catalog from server memory cache (${((now - cachedCatalogTimestamp) / 1000).toFixed(1)}s old)`);
-    return cachedCatalog;
-  }
-
-  console.log("[data-fetcher-server] Server memory cache miss or expired. Fetching raw catalog from Firestore...");
-  const data = await fetchFullCatalogRaw();
-  cachedCatalog = data;
-  cachedCatalogTimestamp = now;
-  return data;
+export async function fetchFullCatalog(options = {}) {
+  return fetchFullCatalogRaw(options);
 }
-
-export const fetchFullCatalog = cache(async () => {
-  const start = performance.now();
-  const products = await getCachedCatalog();
-  const end = performance.now();
-  console.log(`[data-fetcher-server] fetchFullCatalog took ${(end - start).toFixed(2)}ms`);
-  return products;
-});
+export async function fetchCategoriesTree(options = {}) {
+  return fetchCategoriesTreeRaw(options);
+}
+export { fetchHomeData, fetchContactData, fetchServicesData, fetchDistrictData, fetchDistricts, fetchSitePage };

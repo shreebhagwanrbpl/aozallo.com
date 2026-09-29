@@ -1,7 +1,6 @@
 import React from "react";
 import Link from "next/link";
 import { getProductImage } from "@/lib/image-utils";
-
 const ProductCard = React.memo(function ProductCard({ product, district }) {
     const imgSrc = getProductImage(product, "/images/medical-analyzer-default.png");
     return (

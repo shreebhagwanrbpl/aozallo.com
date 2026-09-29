@@ -1,7 +1,6 @@
 import ProductDetails from "@/app/items/[slug]/ProductDetails";
 import { fetchFullCatalog } from "@/lib/data-fetcher-server";
 import { SITE_URL } from "@/lib/seo";
-
 export async function generateMetadata({ params }) {
   const { slug, district } = await params;
   const allProducts = await fetchFullCatalog();
@@ -32,6 +31,8 @@ export async function generateMetadata({ params }) {
 
 export default async function LocationProductPage({ params }) {
   const { slug, district } = await params;
+  const allProducts = await fetchFullCatalog();
+  const product = allProducts.find((p) => p.slug === slug) || null;
 
-  return <ProductDetails slug={slug} district={district} />;
+  return <ProductDetails slug={slug} district={district} product={product} />;
 }

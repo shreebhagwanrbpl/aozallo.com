@@ -1,12 +1,13 @@
 "use client";
-
 import { useRef, useState, useEffect } from "react";
 import { Download, X } from "lucide-react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { getProductImage } from "@/lib/image-utils";
-
+import { useContactInfo } from "@/lib/useContactInfo";
 export default function ProductBrochure({ product, selectedImage: propSelectedImage, isOpen, onClose }) {
+  const { primaryPhone } = useContactInfo();
+
   const printRef = useRef(null);
   const [downloading, setDownloading] = useState(false);
   const [base64Image, setBase64Image] = useState("");
@@ -227,7 +228,7 @@ export default function ProductBrochure({ product, selectedImage: propSelectedIm
             </p>
           </div>
           <div className="text-right text-xs space-y-1" style={{ color: "#E2E8F0" }}>
-            <p><strong style={{ color: "#F59E0B" }}>Phone:</strong> +91 9983123469</p>
+            <p><strong style={{ color: "#F59E0B" }}>Phone:</strong> {primaryPhone}</p>
             <p><strong style={{ color: "#F59E0B" }}>Web:</strong> www.aozallo.com</p>
           </div>
         </div>

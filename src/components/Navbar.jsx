@@ -1,13 +1,13 @@
 "use client";
-
 import Link from "next/link";
 import { Menu, X, PhoneCall } from "lucide-react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-
+import { useContactInfo } from "@/lib/useContactInfo";
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { primaryPhone, primaryPhoneHref } = useContactInfo();
 
   const pathParts = pathname.split("/").filter(Boolean);
 
@@ -68,11 +68,11 @@ export default function Navbar() {
         {/* Desktop Call & Quote Buttons */}
         <div className="hidden lg:flex items-center gap-3">
           <a
-            href="tel:+919983123469"
+            href={primaryPhoneHref || "#"}
             className="inline-flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-2.5 text-xs font-bold text-emerald-800 transition hover:bg-emerald-100"
           >
             <PhoneCall size={15} className="text-emerald-600" />
-            <span>+91 9983123469</span>
+            <span>{primaryPhone}</span>
           </a>
 
           <Link href={makeLink("/contact")}>
@@ -112,11 +112,11 @@ export default function Navbar() {
             ))}
 
             <a
-              href="tel:+919983123469"
+              href={primaryPhoneHref || "#"}
               className="mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200 py-3 font-bold text-emerald-800"
             >
               <PhoneCall size={18} className="text-emerald-600" />
-              <span>Call: +91 9983123469</span>
+              <span>Call: {primaryPhone}</span>
             </a>
 
             <Link href={makeLink("/contact")} onClick={() => setMenuOpen(false)}>

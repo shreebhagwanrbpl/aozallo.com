@@ -1,12 +1,9 @@
 "use client";
-
 import { useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { getContactValue, parseContactValues, phoneHref, mailHref } from "@/lib/contact-utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Mail, Phone, MapPin, ExternalLink, ShieldCheck, ArrowRight } from "lucide-react";
-
 export default function Footer() {
   const [contactInfo, setContactInfo] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,9 +22,11 @@ export default function Footer() {
   useEffect(() => {
     const loadContact = async () => {
       try {
-        const snap = await getDoc(
-          doc(db, "websites", "aozallocom", "pages", "contact")
-        );
+        const snap = await (async () => {
+          const response = await fetch("/api/site-data?pageType=contact", { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
+          const json = await response.json().catch(() => ({}));
+          return { exists: () => !!json.data, data: () => json.data || {} };
+        })();
         if (snap.exists()) {
           setContactInfo(snap.data().contactInfo || []);
         }
@@ -44,9 +43,11 @@ export default function Footer() {
     const loadDistrict = async () => {
       if (!district) return;
       try {
-        const snap = await getDoc(
-          doc(db, "websites", "aozallocom", "districts", district)
-        );
+        const snap = await (async () => {
+          const response = await fetch(`/api/site-data?pageType=district&district=${encodeURIComponent(district)}`, { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
+          const json = await response.json().catch(() => ({}));
+          return { exists: () => !!json.data, data: () => json.data || {} };
+        })();
         if (snap.exists()) {
           setDistrictData(snap.data());
         }
@@ -58,17 +59,12 @@ export default function Footer() {
   }, [district]);
 
   const rawPhone = contactInfo.find((x) => x.label === "Phone Number")?.value;
-  const phone = "9983123469";
-  const displayPhone = "+91 9983123469";
-
-  const email =
-    contactInfo.find((x) => x.label === "Email Address")?.value ||
-    "rajbiosis@yahoo.in";
-
-  const address =
-    contactInfo.find((x) => x.label === "Office Address")?.value ||
-    "Rajbiosis Private Limited, Jaipur, Rajasthan, India";
-
+  const phone = getContactValue(contactInfo, ["Phone", "Phone Number", "Mobile", "Mobile Number", "Contact"]);
+  const phoneNumbers = parseContactValues(phone);
+  const displayPhone = phoneNumbers[0] || "";
+  const email = getContactValue(contactInfo, ["Email", "Email Address", "Mail"]);
+  const emailAddresses = parseContactValues(email);
+  const address = getContactValue(contactInfo, ["Address", "Office Address"]);
   const dynamicAddress = districtData
     ? `${districtData.district}, ${districtData.state}, India`
     : address;
@@ -222,12 +218,11 @@ export default function Footer() {
                   <Phone size={16} />
                 </div>
                 <div>
-                  <a
-                    href={`tel:+91${phone}`}
-                    className="font-bold text-white hover:text-emerald-400 transition text-sm"
-                  >
-                    {displayPhone}
-                  </a>
+                  {phoneNumbers.map((number, index) => (
+                    <a key={index} href={phoneHref(number) || "#"} className="block font-bold text-white hover:text-emerald-400 transition text-sm">
+                      {number}
+                    </a>
+                  ))}
                   <p className="text-[10px] text-slate-400">Direct Sales & Technical Hotline</p>
                 </div>
               </div>
@@ -238,7 +233,7 @@ export default function Footer() {
                 </div>
                 <div>
                   <a
-                    href={`mailto:${email}`}
+                    href={mailHref(parseContactValues(email)[0]) || "#"}
                     className="font-semibold text-slate-200 hover:text-emerald-400 transition break-all"
                   >
                     {email}

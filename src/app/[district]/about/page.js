@@ -1,5 +1,4 @@
 import AboutPage from "@/app/about/page";
-
 export default async function Page({ params }) {
 
   const { district = "jaipur" } = await params;

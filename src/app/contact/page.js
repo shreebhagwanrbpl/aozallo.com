@@ -1,9 +1,6 @@
 "use client";
-
 import React, { useEffect, useState, useMemo, Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { doc, getDoc, addDoc, collection } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -28,191 +25,190 @@ import {
   Radio,
   Copy
 } from "lucide-react";
-
 import PageBanner from "@/components/PageBanner";
-
+import { getContactValue, parseContactValues, phoneHref, mailHref, whatsappHref } from "@/lib/contact-utils";
 // Pre-defined central location dictionary for key districts & major Indian cities
 const DISTRICT_DATABASE = {
   jaipur: {
     name: "Jaipur",
     state: "Rajasthan",
     type: "Headquarters & Central Logistics Hub",
-    address: "Rajbiosis Private Limited, Near Medical Market, Tonk Road, Jaipur, Rajasthan 302015, India",
+    address: "",
     landmark: "Tonk Road, Near SMS Hospital & Medical Market",
     pincode: "302015",
-    mapQuery: "Rajbiosis Private Limited, Tonk Road, Jaipur, Rajasthan 302015, India",
-    phone: "+91 9983123469",
-    altPhone: "+91 9414012345",
-    emergencyPhone: "+91 9983123469",
-    email: "info@aozallo.com",
+    mapQuery: "",
+    phone: "",
+    altPhone: "",
+    emergencyPhone: "",
+    email: "",
     manager: "Headquarters Direct Line"
   },
   delhi: {
     name: "Delhi",
     state: "Delhi NCR",
     type: "NCR Central Regional Hub",
-    address: "Rajbiosis Regional Center, Central Medical Hub, Ring Road near AIIMS Hospital, New Delhi 110029, India",
+    address: "",
     landmark: "AIIMS Ring Road Medical Complex Zone",
     pincode: "110029",
-    mapQuery: "AIIMS Ring Road, New Delhi, India",
-    phone: "+91 9983123469",
-    altPhone: "+91 9414012345",
-    emergencyPhone: "+91 9983123469",
-    email: "delhi@aozallo.com",
+    mapQuery: "",
+    phone: "",
+    altPhone: "",
+    emergencyPhone: "",
+    email: "",
     manager: "Delhi NCR Service Desk"
   },
   kota: {
     name: "Kota",
     state: "Rajasthan",
     type: "Hadoti Regional Operations Branch",
-    address: "Rajbiosis Service Center, Jhalawar Road near New Medical College Hospital, Kota, Rajasthan 324005, India",
+    address: "",
     landmark: "Jhalawar Road, Near New Medical College",
     pincode: "324005",
-    mapQuery: "New Medical College Hospital, Jhalawar Road, Kota, Rajasthan, India",
-    phone: "+91 9983123469",
-    altPhone: "+91 9414012345",
-    emergencyPhone: "+91 9983123469",
-    email: "kota@aozallo.com",
+    mapQuery: "",
+    phone: "",
+    altPhone: "",
+    emergencyPhone: "",
+    email: "",
     manager: "Kota Regional Lead"
   },
   jodhpur: {
     name: "Jodhpur",
     state: "Rajasthan",
     type: "Marwar Regional Service Hub",
-    address: "Rajbiosis Regional Center, Shastri Nagar near MDM Hospital & AIIMS Link Road, Jodhpur, Rajasthan 342003, India",
+    address: "",
     landmark: "Shastri Nagar, Near MDM Hospital",
     pincode: "342003",
-    mapQuery: "Mathuradas Mathur Hospital, Shastri Nagar, Jodhpur, Rajasthan, India",
-    phone: "+91 9983123469",
-    altPhone: "+91 9414012345",
-    emergencyPhone: "+91 9983123469",
-    email: "jodhpur@aozallo.com",
+    mapQuery: "",
+    phone: "",
+    altPhone: "",
+    emergencyPhone: "",
+    email: "",
     manager: "Jodhpur Division Manager"
   },
   udaipur: {
     name: "Udaipur",
     state: "Rajasthan",
     type: "Mewar Regional Branch",
-    address: "Rajbiosis Branch Office, Court Circle near RNT Medical College, Udaipur, Rajasthan 313001, India",
+    address: "",
     landmark: "Court Circle, Near RNT Medical College",
     pincode: "313001",
-    mapQuery: "RNT Medical College, Udaipur, Rajasthan, India",
-    phone: "+91 9983123469",
-    altPhone: "+91 9414012345",
-    emergencyPhone: "+91 9983123469",
-    email: "udaipur@aozallo.com",
+    mapQuery: "",
+    phone: "",
+    altPhone: "",
+    emergencyPhone: "",
+    email: "",
     manager: "Udaipur Service Team"
   },
   bikaner: {
     name: "Bikaner",
     state: "Rajasthan",
     type: "North Rajasthan Service Hub",
-    address: "Rajbiosis District Center, Hospital Road near PBM Govt Hospital, Bikaner, Rajasthan 334001, India",
+    address: "",
     landmark: "Hospital Road, Near PBM Hospital",
     pincode: "334001",
-    mapQuery: "PBM Hospital, Hospital Road, Bikaner, Rajasthan, India",
-    phone: "+91 9983123469",
-    altPhone: "+91 9414012345",
-    emergencyPhone: "+91 9983123469",
-    email: "bikaner@aozallo.com",
+    mapQuery: "",
+    phone: "",
+    altPhone: "",
+    emergencyPhone: "",
+    email: "",
     manager: "Bikaner District Lead"
   },
   ajmer: {
     name: "Ajmer",
     state: "Rajasthan",
     type: "Central Rajasthan Support Center",
-    address: "Rajbiosis Support Station, Ana Sagar Link Road near JLN Govt Hospital, Ajmer, Rajasthan 305001, India",
+    address: "",
     landmark: "Ana Sagar Link Road, Near JLN Hospital",
     pincode: "305001",
-    mapQuery: "JLN Hospital, Ajmer, Rajasthan, India",
-    phone: "+91 9983123469",
-    altPhone: "+91 9414012345",
-    emergencyPhone: "+91 9983123469",
-    email: "ajmer@aozallo.com",
+    mapQuery: "",
+    phone: "",
+    altPhone: "",
+    emergencyPhone: "",
+    email: "",
     manager: "Ajmer Regional Executive"
   },
   alwar: {
     name: "Alwar",
     state: "Rajasthan",
     type: "Alwar District Service Hub",
-    address: "Rajbiosis Branch Office, Hospital Road near Rajiv Gandhi Hospital, Alwar, Rajasthan 301001, India",
+    address: "",
     landmark: "Near Rajiv Gandhi Govt Hospital",
     pincode: "301001",
-    mapQuery: "Rajiv Gandhi Hospital, Alwar, Rajasthan, India",
-    phone: "+91 9983123469",
-    altPhone: "+91 9414012345",
-    emergencyPhone: "+91 9983123469",
-    email: "alwar@aozallo.com",
+    mapQuery: "",
+    phone: "",
+    altPhone: "",
+    emergencyPhone: "",
+    email: "",
     manager: "Alwar Regional Desk"
   },
   bhilwara: {
     name: "Bhilwara",
     state: "Rajasthan",
     type: "Bhilwara Regional Branch",
-    address: "Rajbiosis District Office, Near Mahatma Gandhi Govt Hospital, Bhilwara, Rajasthan 311001, India",
+    address: "",
     landmark: "Near Mahatma Gandhi Hospital",
     pincode: "311001",
-    mapQuery: "Mahatma Gandhi Hospital, Bhilwara, Rajasthan, India",
-    phone: "+91 9983123469",
-    altPhone: "+91 9414012345",
-    emergencyPhone: "+91 9983123469",
-    email: "bhilwara@aozallo.com",
+    mapQuery: "",
+    phone: "",
+    altPhone: "",
+    emergencyPhone: "",
+    email: "",
     manager: "Bhilwara Service Manager"
   },
   sikar: {
     name: "Sikar",
     state: "Rajasthan",
     type: "Shekhawati Regional Desk",
-    address: "Rajbiosis District Station, Jaipur Road near SK Govt Hospital, Sikar, Rajasthan 332001, India",
+    address: "",
     landmark: "Jaipur Road, Near SK Hospital",
     pincode: "332001",
-    mapQuery: "SK Hospital, Sikar, Rajasthan, India",
-    phone: "+91 9983123469",
-    altPhone: "+91 9414012345",
-    emergencyPhone: "+91 9983123469",
-    email: "sikar@aozallo.com",
+    mapQuery: "",
+    phone: "",
+    altPhone: "",
+    emergencyPhone: "",
+    email: "",
     manager: "Shekhawati Service Desk"
   },
   mumbai: {
     name: "Mumbai",
     state: "Maharashtra",
     type: "West India Logistics Branch",
-    address: "Rajbiosis Commercial Hub, Central Hospital Zone, Parel / Dadar Medical Corridor, Mumbai, Maharashtra 400012, India",
+    address: "",
     landmark: "Parel Medical Corridor near KEM Hospital",
     pincode: "400012",
-    mapQuery: "Parel Medical Center, Mumbai, Maharashtra, India",
-    phone: "+91 9983123469",
-    altPhone: "+91 9414012345",
-    emergencyPhone: "+91 9983123469",
-    email: "mumbai@aozallo.com",
+    mapQuery: "",
+    phone: "",
+    altPhone: "",
+    emergencyPhone: "",
+    email: "",
     manager: "West India Commercial Manager"
   },
   ahmedabad: {
     name: "Ahmedabad",
     state: "Gujarat",
     type: "Gujarat State Distribution Hub",
-    address: "Rajbiosis Distribution Node, Civil Hospital Zone, Asarwa, Ahmedabad, Gujarat 380016, India",
+    address: "",
     landmark: "Asarwa Civil Hospital Zone",
     pincode: "380016",
-    mapQuery: "Civil Hospital Asarwa, Ahmedabad, Gujarat, India",
-    phone: "+91 9983123469",
-    altPhone: "+91 9414012345",
-    emergencyPhone: "+91 9983123469",
-    email: "ahmedabad@aozallo.com",
+    mapQuery: "",
+    phone: "",
+    altPhone: "",
+    emergencyPhone: "",
+    email: "",
     manager: "Gujarat Regional Lead"
   },
   chandigarh: {
     name: "Chandigarh",
     state: "Punjab / Haryana",
     type: "North India Regional Hub",
-    address: "Rajbiosis Regional Center, Sector 12 near PGIMER Medical Complex, Chandigarh 160012, India",
+    address: "",
     landmark: "Sector 12 near PGIMER",
     pincode: "160012",
-    mapQuery: "PGIMER Sector 12, Chandigarh, India",
-    phone: "+91 9983123469",
-    altPhone: "+91 9414012345",
-    emergencyPhone: "+91 9983123469",
-    email: "chandigarh@aozallo.com",
+    mapQuery: "",
+    phone: "",
+    altPhone: "",
+    emergencyPhone: "",
+    email: "",
     manager: "North India Regional Desk"
   }
 };
@@ -257,10 +253,10 @@ function resolveDistrictInfo(districtQuery) {
     landmark: `Central Civil Hospital Zone, ${formattedName}`,
     pincode: "Central District Hub",
     mapQuery: `Central Civil Hospital, ${formattedName}, India`,
-    phone: "+91 9983123469",
-    altPhone: "+91 9414012345",
-    emergencyPhone: "+91 9983123469",
-    email: "info@aozallo.com",
+    phone: "",
+    altPhone: "",
+    emergencyPhone: "",
+    email: "",
     manager: `${formattedName} Regional Team`
   };
 }
@@ -313,9 +309,11 @@ function ContactPageContent({ city: propCity }) {
       if (!selectedDistrict) return;
       try {
         const cleanSlug = selectedDistrict.toLowerCase().trim();
-        const snap = await getDoc(
-          doc(db, "websites", "aozallocom", "districts", cleanSlug)
-        );
+        const snap = await (async () => {
+          const response = await fetch(`/api/site-data?pageType=district&district=${encodeURIComponent(cleanSlug)}`, { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
+          const json = await response.json().catch(() => ({}));
+          return { exists: () => !!json.data, data: () => json.data || {} };
+        })();
         if (snap.exists()) {
           setDistrictDataFromDb(snap.data());
         } else {
@@ -332,9 +330,11 @@ function ContactPageContent({ city: propCity }) {
   useEffect(() => {
     const loadContact = async () => {
       try {
-        const snap = await getDoc(
-          doc(db, "websites", "aozallocom", "pages", "contact")
-        );
+        const snap = await (async () => {
+          const response = await fetch("/api/site-data?pageType=contact", { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
+          const json = await response.json().catch(() => ({}));
+          return { exists: () => !!json.data, data: () => json.data || {} };
+        })();
         if (snap.exists()) {
           setContactInfo(snap.data().contactInfo || []);
         }
@@ -369,14 +369,15 @@ function ContactPageContent({ city: propCity }) {
 
     try {
       setSubmitting(true);
-      await addDoc(
-        collection(db, "websitesQueries", "aozallocom", "contactQueries"),
-        {
-          ...form,
-          district: activeDistrict.name,
-          createdAt: new Date(),
-        }
-      );
+      await fetch("/api/contact-query", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form }),
+      }).then(async (response) => {
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || result.success === false) throw new Error(result.error || "Submission failed");
+        return result;
+      });
 
       toast.success(
         `Thank you! Your message for ${activeDistrict.name} has been submitted successfully.`
@@ -390,16 +391,18 @@ function ContactPageContent({ city: propCity }) {
       });
     } catch (err) {
       console.error(err);
-      toast.error("Submission failed. Please call +91 9983123469 directly.");
+      toast.error("Submission failed.");
     } finally {
       setSubmitting(false);
     }
   };
 
-  const displayPhone = activeDistrict.phone || "+91 9983123469";
+  const phoneValue = getContactValue(contactInfo, ["Phone", "Phone Number", "Mobile", "Mobile Number", "Contact"]);
+  const phoneNumbers = parseContactValues(phoneValue);
+  const displayPhone = phoneNumbers[0] || "";
   const rawPhone = displayPhone.replace(/[^0-9]/g, "");
-  const email = activeDistrict.email || "info@aozallo.com";
-
+  const emailValue = getContactValue(contactInfo, ["Email", "Email Address", "Mail"]);
+  const email = parseContactValues(emailValue)[0] || "";
   const dynamicAddress = districtDataFromDb?.address
     ? districtDataFromDb.address
     : activeDistrict.address;
@@ -527,10 +530,10 @@ function ContactPageContent({ city: propCity }) {
                   {!POPULAR_DISTRICTS.some(
                     (d) => d.slug === selectedDistrict.toLowerCase()
                   ) && (
-                    <option value="custom">
-                      📍 Custom: {activeDistrict.name}
-                    </option>
-                  )}
+                      <option value="custom">
+                        📍 Custom: {activeDistrict.name}
+                      </option>
+                    )}
                 </select>
               </div>
             </div>
@@ -548,11 +551,10 @@ function ContactPageContent({ city: propCity }) {
                   <button
                     key={d.slug}
                     onClick={() => setSelectedDistrict(d.slug)}
-                    className={`px-3 py-1.5 rounded-xl font-extrabold text-xs transition flex items-center gap-1 ${
-                      isActive
-                        ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/30 scale-105"
-                        : "bg-slate-100 text-slate-700 hover:bg-emerald-100 hover:text-emerald-800"
-                    }`}
+                    className={`px-3 py-1.5 rounded-xl font-extrabold text-xs transition flex items-center gap-1 ${isActive
+                      ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/30 scale-105"
+                      : "bg-slate-100 text-slate-700 hover:bg-emerald-100 hover:text-emerald-800"
+                      }`}
                   >
                     <span>{d.label}</span>
                     {isActive && <Check size={12} />}
@@ -582,7 +584,7 @@ function ContactPageContent({ city: propCity }) {
                 </p>
                 <div className="mt-4 flex items-center justify-between">
                   <a
-                    href={`tel:${rawPhone}`}
+                    href={phoneHref(displayPhone) || "#"}
                     className="font-black text-emerald-700 text-lg hover:underline flex items-center gap-1"
                   >
                     <span>{displayPhone}</span>
@@ -614,7 +616,7 @@ function ContactPageContent({ city: propCity }) {
                   Get instant catalog & quotes in {activeDistrict.name}
                 </p>
                 <a
-                  href={`https://wa.me/919983123469?text=Hello%20Raj%20Biosis,%20I%20am%20contacting%20from%20${encodeURIComponent(
+                  href={`${whatsappHref(displayPhone) || "#"}?text=Hello%20Raj%20Biosis,%20I%20am%20contacting%20from%20${encodeURIComponent(
                     activeDistrict.name
                   )}%20for%20medical%20equipment%20and%20quotation.`}
                   target="_blank"
@@ -647,10 +649,10 @@ function ContactPageContent({ city: propCity }) {
                   Emergency technical breakdown desk
                 </p>
                 <a
-                  href={`tel:+919983123469`}
+                  href={phoneHref(displayPhone) || "#"}
                   className="mt-4 inline-block font-black text-amber-700 text-base hover:underline"
                 >
-                  +91 9983123469
+                  {displayPhone}
                 </a>
               </div>
               <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-amber-700">
@@ -671,7 +673,7 @@ function ContactPageContent({ city: propCity }) {
                   Send formal hospital purchase orders & tenders
                 </p>
                 <a
-                  href={`mailto:${email}`}
+                  href={mailHref(email) || "#"}
                   className="mt-4 inline-block font-bold text-emerald-400 text-xs sm:text-sm hover:underline break-all"
                 >
                   {email}

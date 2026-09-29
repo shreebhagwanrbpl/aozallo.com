@@ -1,9 +1,7 @@
 "use client";
-
 import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-
 import {
   ShieldCheck,
   Truck,
@@ -12,7 +10,6 @@ import {
   ChevronDown,
   ChevronRight,
 } from "lucide-react";
-
 import PageBanner from "@/components/PageBanner";
 import SectionTitle from "@/components/SectionTitle";
 // import CTASection from "@/components/CTASection";

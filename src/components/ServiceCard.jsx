@@ -1,5 +1,4 @@
 import { ArrowUpRight } from "lucide-react";
-
 export default function ServiceCard({
   icon,
   title,
