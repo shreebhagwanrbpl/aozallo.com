@@ -13,10 +13,8 @@ export async function GET(request) {
   const websiteId = searchParams.get("websiteId") || WEBSITE_ID;
 
   try {
-    const [products, categories] = await Promise.all([
-      fetchFullCatalog({ companyId: COMPANY_ID, websiteId }),
-      fetchCategoriesTree({ companyId: COMPANY_ID, websiteId }),
-    ]);
+    const products = await fetchFullCatalog({ companyId: COMPANY_ID, websiteId });
+    const categories = await fetchCategoriesTree({ companyId: COMPANY_ID, websiteId, catalog: products });
 
     return Response.json(
       { success: true, companyId: COMPANY_ID, websiteId, products, categories },

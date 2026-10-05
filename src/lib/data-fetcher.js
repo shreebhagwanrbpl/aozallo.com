@@ -5,32 +5,33 @@ import {
   isItemVisibleOnWebsite,
 } from "./catalog-utils";
 import {
-  readDocument,
-  readDocumentsWhereCollection,
-} from "./sqliteDb";
+  adminFetch,
+  fetchCatalogFromAdmin,
+} from "./admin-api";
+
 export { makeSlug };
 
-function normalizeProduct(p = {}, catId = "", catName = "", subId = "", subName = "", fallbackIdx = 0) {
-  const title = p.title || p.name || "";
+function normalizeProduct(p = {}, fallbackIdx = 0) {
+  const title = p.title || p.name || "Biomedical Equipment";
   const images = Array.isArray(p.images) && p.images.length
     ? p.images
-    : (p.image ? [p.image] : (p.originalImages || []));
+    : (p.image ? [p.image] : (p.imageUrl ? [p.imageUrl] : (p.imgUrl ? [p.imgUrl] : [])));
 
   return {
     ...p,
-    id: p.id || p.productId || `${catId}-${subId}-${fallbackIdx}`,
-    productId: p.productId || p.id || `${catId}-${subId}-${fallbackIdx}`,
-    uid: p.uid || p.id || p.productId || `${catId}-${subId}-${fallbackIdx}`,
+    id: p.id || p.uid || p.productId || `${makeSlug(title)}-${fallbackIdx}`,
+    productId: p.productId || p.id || p.uid || `${makeSlug(title)}-${fallbackIdx}`,
+    uid: p.uid || p.id || p.productId || `${makeSlug(title)}-${fallbackIdx}`,
     title,
     name: title,
     slug: p.slug || makeSlug(title),
     price: p.price ?? "",
     desc: p.desc ?? p.description ?? "",
     description: p.description ?? p.desc ?? "",
-    category: catName || p.category || catId,
-    categoryId: p.categoryId || catId || "",
-    subCategory: subName || p.subCategory || subId,
-    subcategoryId: p.subcategoryId || subId || "",
+    category: p.category || "Diagnostic & Laboratory Equipment",
+    categoryId: p.categoryId || makeSlug(p.category || "diagnostic"),
+    subCategory: p.subCategory || p.subcategory || p.category || "General",
+    subcategoryId: p.subcategoryId || p.subCategoryId || makeSlug(p.subCategory || p.subcategory || "general"),
     companyId: p.companyId || COMPANY_ID,
     images,
     image: images[0] || p.image || "",
@@ -51,160 +52,81 @@ function normalizeProduct(p = {}, catId = "", catName = "", subId = "", subName 
   };
 }
 
-function categoryPath(categoryId) {
-  return `companies/${COMPANY_ID}/categories/${categoryId}`;
+export async function fetchFullCatalog({ websiteId = WEBSITE_ID } = {}) {
+  try {
+    const raw = await fetchCatalogFromAdmin();
+    if (!Array.isArray(raw)) return [];
+
+    return raw
+      .filter((item) => isItemVisibleOnWebsite(item, websiteId))
+      .map((item, idx) => normalizeProduct(item, idx));
+  } catch (error) {
+    console.error("Admin MongoDB catalog fetch failed:", error);
+    return [];
+  }
 }
 
-function subcategoryPath(categoryId) {
-  return `${categoryPath(categoryId)}/subcategories`;
-}
+export async function fetchCategoriesTree({ websiteId = WEBSITE_ID, catalog = null } = {}) {
+  const products = catalog || (await fetchFullCatalog({ websiteId }));
+  const map = new Map();
 
-export async function fetchFullCatalog({ companyId = COMPANY_ID, websiteId = WEBSITE_ID } = {}) {
-  const allProducts = [];
-  const categories = readDocumentsWhereCollection(`companies/${companyId}/categories`);
+  for (const product of products) {
+    const catId = product.categoryId || makeSlug(product.category || "general");
+    const catName = product.category || catId;
 
-  const visibleCategoryIds = new Set();
-  const visibleCategoryNames = new Set();
-  const visibleSubcategoryIds = new Set();
-  const visibleSubcategoryNames = new Set();
-
-  for (const row of categories) {
-    const cat = { id: row.doc_id, ...row.data };
-    if (!isItemVisibleOnWebsite(cat, websiteId)) continue;
-
-    visibleCategoryIds.add(cat.id);
-    const categoryName = cat.name || cat.category || cat.id;
-    visibleCategoryNames.add(String(categoryName).toLowerCase().replace(/[^a-z0-9]/g, ""));
-
-    // Products embedded in category document.
-    if (Array.isArray(cat.products)) {
-      cat.products.forEach((product, idx) => {
-        if (isItemVisibleOnWebsite(product, websiteId)) {
-          allProducts.push(normalizeProduct(
-            product, cat.id, categoryName, product.subcategoryId || "", product.subCategory || "", `cat-${idx}`
-          ));
-        }
+    if (!map.has(catId)) {
+      map.set(catId, {
+        id: catId,
+        name: catName,
+        category: catName,
+        slug: makeSlug(catName),
+        products: [],
+        subcategories: new Map(),
       });
     }
 
-    const subs = readDocumentsWhereCollection(subcategoryPath(cat.id));
-    for (const subRow of subs) {
-      const sub = { id: subRow.doc_id, ...subRow.data };
-      if (!isItemVisibleOnWebsite(sub, websiteId)) continue;
+    const cat = map.get(catId);
+    cat.products.push(product);
 
-      visibleSubcategoryIds.add(`${cat.id}/${sub.id}`);
-      const subName = sub.name || sub.subCategory || sub.id;
-      visibleSubcategoryNames.add(String(subName).toLowerCase().replace(/[^a-z0-9]/g, ""));
+    const subId = product.subcategoryId || makeSlug(product.subCategory || "general");
+    const subName = product.subCategory || subId;
 
-      if (Array.isArray(sub.products)) {
-        sub.products.forEach((product, idx) => {
-          if (isItemVisibleOnWebsite(product, websiteId)) {
-            allProducts.push(normalizeProduct(
-              product, cat.id, categoryName, sub.id, subName, `embedded-${idx}`
-            ));
-          }
-        });
-      }
-
-      const subProducts = readDocumentsWhereCollection(
-        `${categoryPath(cat.id)}/subcategories/${sub.id}/products`
-      );
-      subProducts.forEach((productRow, idx) => {
-        const product = { id: productRow.doc_id, ...productRow.data };
-        if (isItemVisibleOnWebsite(product, websiteId)) {
-          allProducts.push(normalizeProduct(
-            product, cat.id, categoryName, sub.id, subName, `sqlite-${idx}`
-          ));
-        }
-      });
-    }
-  }
-
-  // Master / standalone products. Category and subcategory hierarchy is also verified.
-  const masterProducts = readDocumentsWhereCollection(`companies/${companyId}/products`);
-  masterProducts.forEach((row, idx) => {
-    const product = { id: row.doc_id, ...row.data };
-    if (!isItemVisibleOnWebsite(product, websiteId)) return;
-
-    const categoryId = product.categoryId || product.categoryID || "";
-    const subcategoryId = product.subcategoryId || product.subCategoryId || "";
-
-    if (categoryId && !visibleCategoryIds.has(categoryId)) return;
-    if (!categoryId && product.category && visibleCategoryNames.size) {
-      const categoryKey = String(product.category).toLowerCase().replace(/[^a-z0-9]/g, "");
-      if (!visibleCategoryNames.has(categoryKey)) return;
-    }
-    if (subcategoryId && categoryId && !visibleSubcategoryIds.has(`${categoryId}/${subcategoryId}`)) return;
-    if (!subcategoryId && product.subCategory && visibleSubcategoryNames.size) {
-      const subKey = String(product.subCategory).toLowerCase().replace(/[^a-z0-9]/g, "");
-      if (!visibleSubcategoryNames.has(subKey)) return;
-    }
-
-    allProducts.push(normalizeProduct(
-      product,
-      categoryId || "master",
-      product.category || "General Products",
-      subcategoryId || "general",
-      product.subCategory || "General Products",
-      `master-${idx}`
-    ));
-  });
-
-  // De-duplicate products while preserving first occurrence.
-  const unique = [];
-  const seen = new Set();
-  for (const product of allProducts) {
-    const key = product.id || product.productId || product.slug;
-    if (!key || seen.has(key)) continue;
-    seen.add(key);
-    unique.push(product);
-  }
-  return unique;
-}
-
-export async function fetchCategoriesTree({ companyId = COMPANY_ID, websiteId = WEBSITE_ID } = {}) {
-  const categories = readDocumentsWhereCollection(`companies/${companyId}/categories`);
-  const result = [];
-
-  for (const row of categories) {
-    const category = { id: row.doc_id, ...row.data };
-    if (!isItemVisibleOnWebsite(category, websiteId)) continue;
-
-    const subcategories = [];
-    const subs = readDocumentsWhereCollection(subcategoryPath(category.id));
-
-    for (const subRow of subs) {
-      const sub = { id: subRow.doc_id, ...subRow.data };
-      if (!isItemVisibleOnWebsite(sub, websiteId)) continue;
-
-      const embedded = Array.isArray(sub.products)
-        ? sub.products.filter((p) => isItemVisibleOnWebsite(p, websiteId))
-        : [];
-
-      const childProducts = readDocumentsWhereCollection(
-        `${categoryPath(category.id)}/subcategories/${sub.id}/products`
-      ).map((p) => ({ id: p.doc_id, ...p.data }))
-       .filter((p) => isItemVisibleOnWebsite(p, websiteId));
-
-      subcategories.push({
-        ...sub,
-        products: [...embedded, ...childProducts],
-        productsCount: embedded.length + childProducts.length,
+    if (!cat.subcategories.has(subId)) {
+      cat.subcategories.set(subId, {
+        id: subId,
+        name: subName,
+        subCategory: subName,
+        slug: makeSlug(subName),
+        products: [],
+        productsCount: 0,
       });
     }
 
-    result.push({
-      ...category,
-      subcategories,
-      totalProductsCount: subcategories.reduce((sum, s) => sum + (s.productsCount || 0), 0),
-    });
+    const sub = cat.subcategories.get(subId);
+    sub.products.push(product);
+    sub.productsCount += 1;
   }
 
-  return result;
+  return Array.from(map.values()).map((cat) => ({
+    ...cat,
+    subcategories: Array.from(cat.subcategories.values()),
+    totalProductsCount: cat.products.length,
+  }));
 }
 
 export async function fetchSitePage(pageType, websiteId = WEBSITE_ID) {
-  return readDocument(`websites/${COMPANY_ID}/${websiteId}/pages/${pageType}`)?.data || null;
+  try {
+    const json = await adminFetch("/api/site-data", {}, {
+      type: pageType,
+      pageType,
+      websiteId,
+      companyId: COMPANY_ID,
+    });
+    return json?.data ?? json?.pages ?? null;
+  } catch (error) {
+    console.error(`Admin MongoDB ${pageType} fetch failed:`, error);
+    return null;
+  }
 }
 
 export async function fetchHomeData() {
@@ -221,10 +143,41 @@ export async function fetchServicesData() {
 
 export async function fetchDistrictData(district) {
   if (!district) return null;
-  return readDocument(`websites/${COMPANY_ID}/${WEBSITE_ID}/districts/${district}`)?.data || null;
+
+  try {
+    const json = await adminFetch("/api/site-data", {}, {
+      type: "district",
+      pageType: "district",
+      district,
+      websiteId: WEBSITE_ID,
+      companyId: COMPANY_ID,
+    });
+    return json?.data ?? json?.pages ?? null;
+  } catch (error) {
+    console.error("Admin MongoDB district fetch failed:", error);
+    return null;
+  }
 }
 
-export async function fetchDistricts({ companyId = COMPANY_ID, websiteId = WEBSITE_ID } = {}) {
-  const rows = readDocumentsWhereCollection(`websites/${companyId}/${websiteId}/districts`);
-  return rows.map((r) => ({ id: r.doc_id, ...r.data }));
+export async function fetchDistricts({ websiteId = WEBSITE_ID } = {}) {
+  try {
+    const json = await adminFetch("/api/site-data", {}, {
+      type: "districts",
+      pageType: "districts",
+      websiteId,
+      companyId: COMPANY_ID,
+    });
+    const data = json?.data ?? json?.districts ?? json;
+
+    if (!Array.isArray(data)) return [];
+
+    return data.map((d, idx) => ({
+      id: d.id || d.slug || `dist-${idx}`,
+      ...d,
+      slug: d.slug || d.id || makeSlug(d.district || d.name || `dist-${idx}`),
+    }));
+  } catch (error) {
+    console.error("Admin MongoDB districts fetch failed:", error);
+    return [];
+  }
 }

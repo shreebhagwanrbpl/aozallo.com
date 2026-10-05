@@ -1,12 +1,18 @@
-import { getSqliteDb } from "@/lib/sqliteDb";
+import { adminFetch } from "@/lib/admin-api";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const fetchCache = "force-no-store";
 
-function latestUpdatedAt() {
-  const db = getSqliteDb();
-  return db.prepare("SELECT COALESCE(MAX(updated_at), '') AS updated_at FROM documents").get()?.updated_at || "";
+async function catalogSignature() {
+  const json = await adminFetch("/api/catalog");
+  const products = Array.isArray(json?.products) ? json.products : [];
+  return JSON.stringify({
+    count: products.length,
+    latest: products
+      .map((p) => `${p.id || p.uid || p.productId || p.slug}:${p.updatedAt || p.updated_at || ""}`)
+      .sort(),
+  });
 }
 
 export async function GET(request) {
@@ -15,7 +21,7 @@ export async function GET(request) {
   let closed = false;
 
   const stream = new ReadableStream({
-    start(controller) {
+    async start(controller) {
       const send = (event, data) => {
         if (closed) return;
         controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
@@ -23,23 +29,23 @@ export async function GET(request) {
 
       let last = "";
       try {
-        last = latestUpdatedAt();
+        last = await catalogSignature();
         send("ready", { updatedAt: last });
       } catch (error) {
         send("error", { message: error.message });
       }
 
-      timer = setInterval(() => {
+      timer = setInterval(async () => {
         try {
-          const current = latestUpdatedAt();
-          if (current && current !== last) {
+          const current = await catalogSignature();
+          if (current !== last) {
             last = current;
             send("catalog-changed", { updatedAt: current });
           }
         } catch (error) {
           send("error", { message: error.message });
         }
-      }, 500);
+      }, 3000);
 
       request.signal?.addEventListener("abort", () => {
         closed = true;

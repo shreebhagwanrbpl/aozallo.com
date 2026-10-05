@@ -1,18 +1,24 @@
 "use client";
 import { useEffect, useState } from "react";
 import { getContactValue, parseContactValues, phoneHref, mailHref } from "@/lib/contact-utils";
+import { makeSlug } from "@/lib/catalog-utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Mail, Phone, MapPin, ExternalLink, ShieldCheck, ArrowRight } from "lucide-react";
+
 export default function Footer() {
-  const [contactInfo, setContactInfo] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [contactInfo, setContactInfo] = useState([
+    { label: "Address", value: "F-4, 1st Floor, Plot No. 16, D-Block Tagor Nagar, Ajmer-Delhi Bypass Rd, Jaipur, Rajasthan 302021, India" },
+    { label: "Email", value: "mail@rajbiosis.com" },
+    { label: "Phone Number", value: "8318368383" }
+  ]);
+  const [categories, setCategories] = useState([]);
   const [districtData, setDistrictData] = useState(null);
 
   const pathname = usePathname();
   const pathParts = pathname.split("/").filter(Boolean);
 
-  const staticRoutes = ["about", "services", "products", "contact", "items"];
+  const staticRoutes = ["about", "services", "products", "contact", "items", "category"];
 
   const district =
     pathParts.length > 0 && !staticRoutes.includes(pathParts[0])
@@ -20,93 +26,98 @@ export default function Footer() {
       : "";
 
   useEffect(() => {
-    const loadContact = async () => {
-      try {
-        const snap = await (async () => {
-          const response = await fetch("/api/site-data?pageType=contact", { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
-          const json = await response.json().catch(() => ({}));
-          return { exists: () => !!json.data, data: () => json.data || {} };
-        })();
-        if (snap.exists()) {
-          setContactInfo(snap.data().contactInfo || []);
+    let isMounted = true;
+
+    // Load contact info from DB
+    fetch("/api/site-data?pageType=contact", {
+      cache: "no-store",
+      headers: { "Cache-Control": "no-cache" },
+    })
+      .then((r) => r.json())
+      .then((json) => {
+        if (isMounted && json?.data?.contactInfo && json.data.contactInfo.length > 0) {
+          setContactInfo(json.data.contactInfo);
         }
-        setLoading(false);
-      } catch (err) {
-        console.log(err);
-        setLoading(false);
-      }
+      })
+      .catch((err) => console.log("Footer contact load:", err));
+
+    // Load dynamic categories from catalog API
+    fetch("/api/catalog", {
+      cache: "no-store",
+      headers: { "Cache-Control": "no-cache" },
+    })
+      .then((r) => r.json())
+      .then((json) => {
+        if (!isMounted || !json) return;
+        if (Array.isArray(json.categories) && json.categories.length > 0) {
+          const formatted = json.categories.map((c) => ({
+            name: c.name || c.category,
+            slug: c.slug || makeSlug(c.name || c.category),
+            link: `/category/${c.slug || makeSlug(c.name || c.category)}`,
+            count: c.totalProductsCount ?? (Array.isArray(c.products) ? c.products.length : 0),
+          }));
+          setCategories(formatted);
+        } else if (Array.isArray(json.products) && json.products.length > 0) {
+          const uniqueMap = new Map();
+          json.products.forEach((p) => {
+            const catName = (p.category || "").trim();
+            if (catName && !uniqueMap.has(catName.toLowerCase())) {
+              const slug = p.categoryId || makeSlug(catName);
+              uniqueMap.set(catName.toLowerCase(), {
+                name: catName,
+                slug,
+                link: `/category/${slug}`,
+              });
+            }
+          });
+          if (uniqueMap.size > 0) {
+            setCategories(Array.from(uniqueMap.values()));
+          }
+        }
+      })
+      .catch((err) => console.log("Footer catalog categories load:", err));
+
+    return () => {
+      isMounted = false;
     };
-    loadContact();
   }, []);
 
   useEffect(() => {
-    const loadDistrict = async () => {
-      if (!district) return;
-      try {
-        const snap = await (async () => {
-          const response = await fetch(`/api/site-data?pageType=district&district=${encodeURIComponent(district)}`, { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
-          const json = await response.json().catch(() => ({}));
-          return { exists: () => !!json.data, data: () => json.data || {} };
-        })();
-        if (snap.exists()) {
-          setDistrictData(snap.data());
+    if (!district) return;
+    let isMounted = true;
+    fetch(`/api/site-data?pageType=district&district=${encodeURIComponent(district)}`, {
+      cache: "no-store",
+      headers: { "Cache-Control": "no-cache" },
+    })
+      .then((r) => r.json())
+      .then((json) => {
+        if (isMounted && json?.data) {
+          setDistrictData(json.data);
         }
-      } catch (err) {
-        console.log(err);
-      }
+      })
+      .catch((err) => console.log("Footer district load:", err));
+
+    return () => {
+      isMounted = false;
     };
-    loadDistrict();
   }, [district]);
 
-  const rawPhone = contactInfo.find((x) => x.label === "Phone Number")?.value;
-  const phone = getContactValue(contactInfo, ["Phone", "Phone Number", "Mobile", "Mobile Number", "Contact"]);
+  const phone = getContactValue(contactInfo, ["Phone", "Phone Number", "Mobile", "Mobile Number", "Contact"]) || "8318368383";
   const phoneNumbers = parseContactValues(phone);
-  const displayPhone = phoneNumbers[0] || "";
-  const email = getContactValue(contactInfo, ["Email", "Email Address", "Mail"]);
-  const emailAddresses = parseContactValues(email);
-  const address = getContactValue(contactInfo, ["Address", "Office Address"]);
-  const dynamicAddress = districtData
-    ? `${districtData.district}, ${districtData.state}, India`
-    : address;
+  const email = getContactValue(contactInfo, ["Email", "Email Address", "Mail"]) || "mail@rajbiosis.com";
+  const address = getContactValue(contactInfo, ["Address", "Office Address"]) || "F-4, 1st Floor, Plot No. 16, D-Block Tagor Nagar, Ajmer-Delhi Bypass Rd, Jaipur, Rajasthan 302021, India";
+  const dynamicAddress = districtData?.address
+    ? districtData.address
+    : (district ? `${districtData?.district || district}, India` : address);
 
-  const mapAddress = encodeURIComponent(dynamicAddress);
+  const mapAddress = encodeURIComponent(dynamicAddress || address);
 
   const makeLink = (path) => {
     if (!district) return path;
+    if (path.startsWith("/category")) return path;
     if (path === "/") return `/${district}`;
     return `/${district}${path}`;
   };
-
-  const productCategories = [
-    { name: "ICU & Critical Care Equipment", link: "/category/icu-critical-care" },
-    { name: "Hematology & CBC Analyzers", link: "/category/pathology-analyzer" },
-    { name: "Biochemistry Analyzers", link: "/category/biochemistry" },
-    { name: "Ultrasound & Diagnostic Imaging", link: "/category/ultrasound-imaging" },
-    { name: "Electrolyte Analyzers & Readers", link: "/category/electrolyte-reader" },
-    { name: "Laboratory Reagents & Test Kits", link: "/category/reagents" },
-  ];
-
-  if (loading) {
-    return (
-      <footer className="bg-slate-900 text-white border-t border-slate-800">
-        <div className="container-custom py-16">
-          <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-10">
-            {[...Array(4)].map((_, i) => (
-              <div key={i}>
-                <div className="h-8 w-40 bg-slate-800 rounded animate-pulse mb-6" />
-                {[...Array(5)].map((_, j) => (
-                  <div
-                    key={j}
-                    className="h-5 bg-slate-800 rounded animate-pulse mb-4"
-                  />
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-      </footer>
-    );
-  }
 
   return (
     <footer className="bg-slate-950 text-white border-t border-slate-800 relative overflow-hidden">
@@ -169,24 +180,48 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Column 3: Product Categories */}
+          {/* Column 3: Product Categories (100% Dynamic from DB) */}
           <div className="lg:col-span-3 space-y-4">
-            <h3 className="text-sm font-extrabold uppercase tracking-wider text-white border-b border-slate-800 pb-2">
-              Product Categories
+            <h3 className="text-sm font-extrabold uppercase tracking-wider text-white border-b border-slate-800 pb-2 flex items-center justify-between">
+              <span>Product Categories</span>
+              {categories.length > 0 && (
+                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-800/40">
+                  {categories.length}
+                </span>
+              )}
             </h3>
-            <ul className="space-y-2.5 text-xs font-medium">
-              {productCategories.map((cat) => (
-                <li key={cat.name}>
-                  <Link
-                    href={makeLink(cat.link)}
-                    className="text-slate-400 transition hover:text-emerald-400 inline-flex items-center gap-1.5 group"
-                  >
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 group-hover:scale-125 transition" />
-                    <span>{cat.name}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            {categories.length > 0 ? (
+              <ul className="space-y-2.5 text-xs font-medium">
+                {categories.slice(0, 8).map((cat) => (
+                  <li key={cat.name || cat.slug}>
+                    <Link
+                      href={makeLink(cat.link)}
+                      className="text-slate-400 transition hover:text-emerald-400 inline-flex items-center gap-1.5 group"
+                    >
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 group-hover:scale-125 transition shrink-0" />
+                      <span className="line-clamp-1">{cat.name}</span>
+                    </Link>
+                  </li>
+                ))}
+                {categories.length > 8 && (
+                  <li className="pt-1">
+                    <Link
+                      href={makeLink("/items")}
+                      className="text-emerald-400 hover:text-emerald-300 text-[11px] font-semibold inline-flex items-center gap-1 hover:underline"
+                    >
+                      <span>View all categories ({categories.length})</span>
+                      <ArrowRight size={12} />
+                    </Link>
+                  </li>
+                )}
+              </ul>
+            ) : (
+              <div className="space-y-2 py-1">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="h-4 bg-slate-800/50 rounded animate-pulse w-3/4" />
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Column 4: Contact & Location */}

@@ -33,182 +33,182 @@ const DISTRICT_DATABASE = {
     name: "Jaipur",
     state: "Rajasthan",
     type: "Headquarters & Central Logistics Hub",
-    address: "",
-    landmark: "Tonk Road, Near SMS Hospital & Medical Market",
-    pincode: "302015",
-    mapQuery: "",
-    phone: "",
+    address: "F-4, 1st Floor, Plot No. 16, D-Block Tagor Nagar, Ajmer-Delhi Bypass Rd, Jaipur, Rajasthan 302021, India",
+    landmark: "Ajmer-Delhi Bypass Rd, Tagor Nagar",
+    pincode: "302021",
+    mapQuery: "Rajbiosis Private Limited, F-4, 1st Floor, Plot No. 16, D-Block Tagor Nagar, Ajmer-Delhi Bypass Rd, Jaipur, Rajasthan 302021",
+    phone: "8318368383",
     altPhone: "",
-    emergencyPhone: "",
-    email: "",
+    emergencyPhone: "8318368383",
+    email: "mail@rajbiosis.com",
     manager: "Headquarters Direct Line"
   },
   delhi: {
     name: "Delhi",
     state: "Delhi NCR",
     type: "NCR Central Regional Hub",
-    address: "",
+    address: "AIIMS Ring Road Medical Complex Zone, New Delhi, Delhi 110029, India",
     landmark: "AIIMS Ring Road Medical Complex Zone",
     pincode: "110029",
-    mapQuery: "",
-    phone: "",
+    mapQuery: "AIIMS New Delhi, Ansari Nagar, New Delhi, Delhi 110029",
+    phone: "8318368383",
     altPhone: "",
-    emergencyPhone: "",
-    email: "",
+    emergencyPhone: "8318368383",
+    email: "mail@rajbiosis.com",
     manager: "Delhi NCR Service Desk"
   },
   kota: {
     name: "Kota",
     state: "Rajasthan",
     type: "Hadoti Regional Operations Branch",
-    address: "",
+    address: "Jhalawar Road, Near New Medical College, Kota, Rajasthan 324005, India",
     landmark: "Jhalawar Road, Near New Medical College",
     pincode: "324005",
-    mapQuery: "",
-    phone: "",
+    mapQuery: "Government Medical College, Jhalawar Road, Kota, Rajasthan 324005",
+    phone: "8318368383",
     altPhone: "",
-    emergencyPhone: "",
-    email: "",
+    emergencyPhone: "8318368383",
+    email: "mail@rajbiosis.com",
     manager: "Kota Regional Lead"
   },
   jodhpur: {
     name: "Jodhpur",
     state: "Rajasthan",
     type: "Marwar Regional Service Hub",
-    address: "",
+    address: "Shastri Nagar, Near MDM Hospital, Jodhpur, Rajasthan 342003, India",
     landmark: "Shastri Nagar, Near MDM Hospital",
     pincode: "342003",
-    mapQuery: "",
-    phone: "",
+    mapQuery: "Mathura Das Mathur Hospital, Shastri Nagar, Jodhpur, Rajasthan 342003",
+    phone: "8318368383",
     altPhone: "",
-    emergencyPhone: "",
-    email: "",
+    emergencyPhone: "8318368383",
+    email: "mail@rajbiosis.com",
     manager: "Jodhpur Division Manager"
   },
   udaipur: {
     name: "Udaipur",
     state: "Rajasthan",
     type: "Mewar Regional Branch",
-    address: "",
+    address: "Court Circle, Near RNT Medical College, Udaipur, Rajasthan 313001, India",
     landmark: "Court Circle, Near RNT Medical College",
     pincode: "313001",
-    mapQuery: "",
-    phone: "",
+    mapQuery: "RNT Medical College, Court Circle, Udaipur, Rajasthan 313001",
+    phone: "8318368383",
     altPhone: "",
-    emergencyPhone: "",
-    email: "",
+    emergencyPhone: "8318368383",
+    email: "mail@rajbiosis.com",
     manager: "Udaipur Service Team"
   },
   bikaner: {
     name: "Bikaner",
     state: "Rajasthan",
     type: "North Rajasthan Service Hub",
-    address: "",
+    address: "Hospital Road, Near PBM Hospital, Bikaner, Rajasthan 334001, India",
     landmark: "Hospital Road, Near PBM Hospital",
     pincode: "334001",
-    mapQuery: "",
-    phone: "",
+    mapQuery: "PBM Hospital, Hospital Road, Bikaner, Rajasthan 334001",
+    phone: "8318368383",
     altPhone: "",
-    emergencyPhone: "",
-    email: "",
+    emergencyPhone: "8318368383",
+    email: "mail@rajbiosis.com",
     manager: "Bikaner District Lead"
   },
   ajmer: {
     name: "Ajmer",
     state: "Rajasthan",
     type: "Central Rajasthan Support Center",
-    address: "",
+    address: "Ana Sagar Link Road, Near JLN Hospital, Ajmer, Rajasthan 305001, India",
     landmark: "Ana Sagar Link Road, Near JLN Hospital",
     pincode: "305001",
-    mapQuery: "",
-    phone: "",
+    mapQuery: "Jawaharlal Nehru Hospital, Ana Sagar Link Road, Ajmer, Rajasthan 305001",
+    phone: "8318368383",
     altPhone: "",
-    emergencyPhone: "",
-    email: "",
+    emergencyPhone: "8318368383",
+    email: "mail@rajbiosis.com",
     manager: "Ajmer Regional Executive"
   },
   alwar: {
     name: "Alwar",
     state: "Rajasthan",
     type: "Alwar District Service Hub",
-    address: "",
+    address: "Near Rajiv Gandhi Govt Hospital, Alwar, Rajasthan 301001, India",
     landmark: "Near Rajiv Gandhi Govt Hospital",
     pincode: "301001",
-    mapQuery: "",
-    phone: "",
+    mapQuery: "Rajiv Gandhi General Hospital, Alwar, Rajasthan 301001",
+    phone: "8318368383",
     altPhone: "",
-    emergencyPhone: "",
-    email: "",
+    emergencyPhone: "8318368383",
+    email: "mail@rajbiosis.com",
     manager: "Alwar Regional Desk"
   },
   bhilwara: {
     name: "Bhilwara",
     state: "Rajasthan",
     type: "Bhilwara Regional Branch",
-    address: "",
+    address: "Near Mahatma Gandhi Hospital, Bhilwara, Rajasthan 311001, India",
     landmark: "Near Mahatma Gandhi Hospital",
     pincode: "311001",
-    mapQuery: "",
-    phone: "",
+    mapQuery: "Mahatma Gandhi Hospital, Bhilwara, Rajasthan 311001",
+    phone: "8318368383",
     altPhone: "",
-    emergencyPhone: "",
-    email: "",
+    emergencyPhone: "8318368383",
+    email: "mail@rajbiosis.com",
     manager: "Bhilwara Service Manager"
   },
   sikar: {
     name: "Sikar",
     state: "Rajasthan",
     type: "Shekhawati Regional Desk",
-    address: "",
+    address: "Jaipur Road, Near SK Hospital, Sikar, Rajasthan 332001, India",
     landmark: "Jaipur Road, Near SK Hospital",
     pincode: "332001",
-    mapQuery: "",
-    phone: "",
+    mapQuery: "SK Hospital, Jaipur Road, Sikar, Rajasthan 332001",
+    phone: "8318368383",
     altPhone: "",
-    emergencyPhone: "",
-    email: "",
+    emergencyPhone: "8318368383",
+    email: "mail@rajbiosis.com",
     manager: "Shekhawati Service Desk"
   },
   mumbai: {
     name: "Mumbai",
     state: "Maharashtra",
     type: "West India Logistics Branch",
-    address: "",
+    address: "Parel Medical Corridor near KEM Hospital, Mumbai, Maharashtra 400012, India",
     landmark: "Parel Medical Corridor near KEM Hospital",
     pincode: "400012",
-    mapQuery: "",
-    phone: "",
+    mapQuery: "KEM Hospital, Acharya Donde Marg, Parel, Mumbai, Maharashtra 400012",
+    phone: "8318368383",
     altPhone: "",
-    emergencyPhone: "",
-    email: "",
+    emergencyPhone: "8318368383",
+    email: "mail@rajbiosis.com",
     manager: "West India Commercial Manager"
   },
   ahmedabad: {
     name: "Ahmedabad",
     state: "Gujarat",
     type: "Gujarat State Distribution Hub",
-    address: "",
+    address: "Asarwa Civil Hospital Zone, Ahmedabad, Gujarat 380016, India",
     landmark: "Asarwa Civil Hospital Zone",
     pincode: "380016",
-    mapQuery: "",
-    phone: "",
+    mapQuery: "Civil Hospital Ahmedabad, Asarwa, Ahmedabad, Gujarat 380016",
+    phone: "8318368383",
     altPhone: "",
-    emergencyPhone: "",
-    email: "",
+    emergencyPhone: "8318368383",
+    email: "mail@rajbiosis.com",
     manager: "Gujarat Regional Lead"
   },
   chandigarh: {
     name: "Chandigarh",
     state: "Punjab / Haryana",
     type: "North India Regional Hub",
-    address: "",
+    address: "Sector 12 near PGIMER, Chandigarh, 160012, India",
     landmark: "Sector 12 near PGIMER",
     pincode: "160012",
-    mapQuery: "",
-    phone: "",
+    mapQuery: "Postgraduate Institute of Medical Education and Research, Sector 12, Chandigarh, 160012",
+    phone: "8318368383",
     altPhone: "",
-    emergencyPhone: "",
-    email: "",
+    emergencyPhone: "8318368383",
+    email: "mail@rajbiosis.com",
     manager: "North India Regional Desk"
   }
 };
@@ -252,11 +252,11 @@ function resolveDistrictInfo(districtQuery) {
     address: `Rajbiosis Private Limited - Central ${formattedName} Office, Medical Market & Civil Hospital Zone, ${formattedName}, India`,
     landmark: `Central Civil Hospital Zone, ${formattedName}`,
     pincode: "Central District Hub",
-    mapQuery: `Central Civil Hospital, ${formattedName}, India`,
-    phone: "",
+    mapQuery: `Rajbiosis Private Limited, ${formattedName}, India`,
+    phone: "8318368383",
     altPhone: "",
-    emergencyPhone: "",
-    email: "",
+    emergencyPhone: "8318368383",
+    email: "mail@rajbiosis.com",
     manager: `${formattedName} Regional Team`
   };
 }
@@ -279,7 +279,11 @@ function ContactPageContent({ city: propCity }) {
 
   const [selectedDistrict, setSelectedDistrict] = useState(initialDistrictName);
   const [districtDataFromDb, setDistrictDataFromDb] = useState(null);
-  const [contactInfo, setContactInfo] = useState([]);
+  const [contactInfo, setContactInfo] = useState([
+    { label: "Address", value: "F-4, 1st Floor, Plot No. 16, D-Block Tagor Nagar, Ajmer-Delhi Bypass Rd, Jaipur, Rajasthan 302021, India" },
+    { label: "Email", value: "mail@rajbiosis.com" },
+    { label: "Phone Number", value: "8318368383" }
+  ]);
   const [submitting, setSubmitting] = useState(false);
   const [searchFilter, setSearchFilter] = useState("");
   const [copiedPhone, setCopiedPhone] = useState(false);
@@ -303,43 +307,43 @@ function ContactPageContent({ city: propCity }) {
     message: "",
   });
 
-  // Optional: fetch custom Firestore district data if available
+  // Fetch custom district data from DB if available
   useEffect(() => {
     const loadDistrictFromDb = async () => {
       if (!selectedDistrict) return;
       try {
         const cleanSlug = selectedDistrict.toLowerCase().trim();
-        const snap = await (async () => {
-          const response = await fetch(`/api/site-data?pageType=district&district=${encodeURIComponent(cleanSlug)}`, { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
-          const json = await response.json().catch(() => ({}));
-          return { exists: () => !!json.data, data: () => json.data || {} };
-        })();
-        if (snap.exists()) {
-          setDistrictDataFromDb(snap.data());
+        const response = await fetch(`/api/site-data?pageType=district&district=${encodeURIComponent(cleanSlug)}`, {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache" }
+        });
+        const json = await response.json().catch(() => ({}));
+        if (json?.data) {
+          setDistrictDataFromDb(json.data);
         } else {
           setDistrictDataFromDb(null);
         }
       } catch (err) {
-        console.log("Firestore district query notice:", err);
+        console.log("District data query notice:", err);
       }
     };
     loadDistrictFromDb();
   }, [selectedDistrict]);
 
-  // Optional: fetch contact info settings from Firestore
+  // Fetch contact info settings from DB
   useEffect(() => {
     const loadContact = async () => {
       try {
-        const snap = await (async () => {
-          const response = await fetch("/api/site-data?pageType=contact", { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
-          const json = await response.json().catch(() => ({}));
-          return { exists: () => !!json.data, data: () => json.data || {} };
-        })();
-        if (snap.exists()) {
-          setContactInfo(snap.data().contactInfo || []);
+        const response = await fetch("/api/site-data?pageType=contact", {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache" }
+        });
+        const json = await response.json().catch(() => ({}));
+        if (json?.data?.contactInfo && json.data.contactInfo.length > 0) {
+          setContactInfo(json.data.contactInfo);
         }
       } catch (err) {
-        console.log("Firestore contact query notice:", err);
+        console.log("Contact data query notice:", err);
       }
     };
     loadContact();
@@ -397,18 +401,22 @@ function ContactPageContent({ city: propCity }) {
     }
   };
 
-  const phoneValue = getContactValue(contactInfo, ["Phone", "Phone Number", "Mobile", "Mobile Number", "Contact"]);
+  const phoneValue = getContactValue(contactInfo, ["Phone", "Phone Number", "Mobile", "Mobile Number", "Contact"]) || "8318368383";
   const phoneNumbers = parseContactValues(phoneValue);
-  const displayPhone = phoneNumbers[0] || "";
+  const displayPhone = phoneNumbers[0] || "8318368383";
   const rawPhone = displayPhone.replace(/[^0-9]/g, "");
-  const emailValue = getContactValue(contactInfo, ["Email", "Email Address", "Mail"]);
-  const email = parseContactValues(emailValue)[0] || "";
+  const emailValue = getContactValue(contactInfo, ["Email", "Email Address", "Mail"]) || "mail@rajbiosis.com";
+  const email = parseContactValues(emailValue)[0] || "mail@rajbiosis.com";
+  const centralAddress = getContactValue(contactInfo, ["Address", "Office Address"]) || "F-4, 1st Floor, Plot No. 16, D-Block Tagor Nagar, Ajmer-Delhi Bypass Rd, Jaipur, Rajasthan 302021, India";
+
+  const isJaipurOrHQ = !selectedDistrict || selectedDistrict.toLowerCase() === "jaipur";
+
   const dynamicAddress = districtDataFromDb?.address
     ? districtDataFromDb.address
-    : activeDistrict.address;
+    : (isJaipurOrHQ ? (centralAddress || activeDistrict.address) : (activeDistrict.address || centralAddress));
 
   const mapAddressQuery = encodeURIComponent(
-    activeDistrict.mapQuery || dynamicAddress
+    districtDataFromDb?.mapQuery || activeDistrict.mapQuery || dynamicAddress || centralAddress
   );
 
   const copyToClipboard = (text) => {
@@ -621,7 +629,7 @@ function ContactPageContent({ city: propCity }) {
                   )}%20for%20medical%20equipment%20and%20quotation.`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-4 inline-flex items-center gap-2 rounded-xl bg-green-600 text-white font-extrabold text-xs px-4 py-2.5 shadow-md shadow-green-600/20 hover:bg-green-700 transition"
+                  className="mt-4 inline-flex items-center gap-2 rounded-xl bg-green-600 !text-white font-extrabold text-xs px-4 py-2.5 shadow-md shadow-green-600/20 hover:bg-green-700 transition"
                 >
                   <span>Chat on WhatsApp</span>
                   <ExternalLink size={14} />
@@ -750,7 +758,7 @@ function ContactPageContent({ city: propCity }) {
                     href={`https://maps.google.com/?q=${mapAddressQuery}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white font-bold text-xs px-5 py-3 transition shadow-md"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 hover:bg-emerald-600 !text-white font-bold text-xs px-5 py-3 transition shadow-md"
                   >
                     <span>Open {activeDistrict.name} in Google Maps</span>
                     <ExternalLink size={14} />
@@ -862,44 +870,9 @@ function ContactPageContent({ city: propCity }) {
                     />
                   </div>
 
-                  <div>
-                    <label className="text-xs font-bold text-slate-700 block mb-1.5">
-                      Inquiry Type / Subject
-                    </label>
-                    <select
-                      name="subject"
-                      value={form.subject}
-                      onChange={handleChange}
-                      className="w-full rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3.5 text-xs text-slate-800 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100 cursor-pointer"
-                    >
-                      <option value="Medical Equipment Quote">
-                        Medical Equipment Purchase Quote
-                      </option>
-                      <option value="AMC & Repair Service">
-                        AMC & Technical Service Repair
-                      </option>
-                      <option value="Reagents & Diagnostic Kits">
-                        Reagents & Lab Consumables
-                      </option>
-                      <option value="Hospital Turnkey Project">
-                        Hospital Setup & Turnkey Order
-                      </option>
-                      <option value="General Inquiry">General Consultation</option>
-                    </select>
-                  </div>
+
                 </div>
 
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1.5">
-                    District / Hospital Location
-                  </label>
-                  <input
-                    type="text"
-                    readOnly
-                    value={`${activeDistrict.name} (${activeDistrict.state})`}
-                    className="w-full rounded-2xl border border-slate-200 bg-slate-100 font-bold px-4 py-3 text-xs text-emerald-800 cursor-not-allowed"
-                  />
-                </div>
 
                 <div>
                   <label className="text-xs font-bold text-slate-700 block mb-1.5">

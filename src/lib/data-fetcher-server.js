@@ -14,7 +14,16 @@ export const dynamic = "force-dynamic";
 export async function fetchFullCatalog(options = {}) {
   return fetchFullCatalogRaw(options);
 }
+
 export async function fetchCategoriesTree(options = {}) {
   return fetchCategoriesTreeRaw(options);
 }
-export { fetchHomeData, fetchContactData, fetchServicesData, fetchDistrictData, fetchDistricts, fetchSitePage };
+
+export {
+  fetchHomeData,
+  fetchContactData,
+  fetchServicesData,
+  fetchDistrictData,
+  fetchDistricts,
+  fetchSitePage,
+};
